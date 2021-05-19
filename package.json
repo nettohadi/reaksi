@@ -1,0 +1,43 @@
+{
+  "name": "react-clone",
+  "version": "1.0.0",
+  "description": "An attempt to create react like library",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack serve --open",
+    "build": "webpack --mode production",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "react-clone"
+  },
+  "keywords": [
+    "React",
+    "clone"
+  ],
+  "author": "Abdul Hadi Syahbal",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.14.0",
+    "@babel/plugin-syntax-jsx": "^7.12.13",
+    "@babel/plugin-transform-react-jsx": "^7.13.12",
+    "@babel/preset-env": "^7.14.1",
+    "@babel/preset-typescript": "^7.13.0",
+    "@testing-library/dom": "^7.31.0",
+    "@testing-library/jest-dom": "^5.12.0",
+    "@types/jest": "^26.0.23",
+    "babel-jest": "^26.6.3",
+    "babel-loader": "^8.2.2",
+    "html-webpack-plugin": "^5.3.1",
+    "jest": "^26.6.3",
+    "regenerator-runtime": "^0.13.7",
+    "source-map-loader": "^2.0.1",
+    "ts-loader": "^9.1.2",
+    "typescript": "^4.2.4",
+    "webpack": "^5.36.2",
+    "webpack-cli": "^4.6.0",
+    "webpack-dev-server": "^3.11.2"
+  }
+}
