@@ -90,7 +90,7 @@ describe('useState()', () => {
     });
 
     /**
-    Bug #1 : Childnodes get replaced by component, because it assume the old dom is the first child of the container
+    Bug #1 : ChildNodes get replaced by component, because it assume the old dom is the first child of the container
     */
     it('should not replace all childNodes of the container, when component has sibling', async () => {
         /* Setup */
@@ -133,6 +133,52 @@ describe('useState()', () => {
 
         expect(container.innerHTML).toEqual(removeAllWhiteSpaces(expected));
     })
+
+    /**
+      Bug #2 : When childNode replace another childNode, state changes is not reflected on the dom, because
+      virtual childNode did not update it's reference to new node in the dom tree, it still has reference
+      to the old node. In this test, we need to make sure that when childNode replace another childNode,
+      it needs to update it's node reference too.
+     */
+
+    it('should update the right node, when there are changes in position, or some nodes being removed from' +
+         'the dom tree', async () => {
+
+        /* Setup */
+        const Component = () => {
+            const [counter, setCounter] = useState(0);
+            return (
+                <div>
+                    <div data-testid="counter">{counter}</div>
+                    <button data-testid="button" onclick={() => setCounter(counter + 1)}>+</button>
+                </div>
+            );
+        }
+
+        const container = document.createElement('div');
+
+        /* Invoke */
+        reaksi.render(<div><Component key={1}/><Component key={2}/></div>, container);
+        const counters = container.querySelectorAll("[data-testid='counter']");
+        const buttons = container.querySelectorAll("[data-testid='button']");
+
+        /* Assert */
+        await fireEvent(buttons[0],new MouseEvent('click'));
+        expect(counters[0].innerHTML).toBe('1')
+
+        await fireEvent(buttons[1],new MouseEvent('click'));
+        await fireEvent(buttons[1],new MouseEvent('click'));
+        expect(counters[1].innerHTML).toBe('2')
+
+        /* Remove first component*/
+        reaksi.render(<div><Component key={2}/></div>, container);
+        const counter = container.querySelector("[data-testid='counter']") as HTMLElement;
+        const button = container.querySelector("[data-testid='button']") as Node;
+
+        await fireEvent(button,new MouseEvent('click'));
+        expect(counter.innerHTML).toBe('3')
+
+    });
 });
 
 describe('useEffect()', () => {
@@ -217,6 +263,54 @@ describe('useEffect()', () => {
 
     });
 
+    it('should run unmounting effect if supplied when the associated component is removed', () => {
+        /* Setup */
+        const unMountingEffect1 = jest.fn().mockImplementation(() => '');
+        const unMountingEffect2 = jest.fn().mockImplementation(() => '');
 
+        const Component1 = () => {
+            useEffect(() => unMountingEffect1, []);
+            return (<div></div>);
+        };
+
+        const Component2 = () => {
+            useEffect(() => unMountingEffect2, []);
+            return (<div></div>);
+        };
+
+
+        const container = document.createElement('div');
+
+        /* Invoke */
+        reaksi.render(<div><Component1/><Component2/></div>, container);
+        reaksi.render(<div><Component2/></div>, container);
+
+        /* Assert */
+        expect(unMountingEffect1).toBeCalledTimes(1);
+        expect(unMountingEffect2).toBeCalledTimes(0);
+
+    })
+
+    it('should run unmounting effect 2 times when associated component is removed 2 times', () => {
+        /* Setup */
+        const unMountingEffect = jest.fn().mockImplementation(() => '');
+
+        const Component1 = () => {
+            useEffect(() => unMountingEffect, []);
+            return (<div></div>);
+        };
+
+        const container = document.createElement('div');
+
+        /* Invoke & assert*/
+        reaksi.render(<div><Component1/></div>, container);
+        reaksi.render(<div></div>, container);
+        expect(unMountingEffect).toBeCalledTimes(1);
+
+        reaksi.render(<div><Component1/></div>, container);
+        reaksi.render(<div></div>, container);
+        expect(unMountingEffect).toBeCalledTimes(2);
+
+    })
 
 })

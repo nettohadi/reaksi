@@ -1,8 +1,8 @@
-/* TODO : create onmounted lifecycle*/
 /* TODO : create onUnMounted lifecycle*/
-/* TODO : create useEffect with dependencies*/
 
-import {getCurrentComponent, getUnMountedComponent} from "./useState";
+
+import {getCurrentComponent, getUnMountedComponent, resetUnMountedComponents} from "./useState";
+import {componentHookIds} from "../shared";
 
 type EffectType = {
     id: number,
@@ -19,10 +19,9 @@ let effects: EffectType[] = []
 let pendingEffects: ComponentEffectType[] = [];
 let unmountingEffects: ComponentEffectType[] = [];
 
-let currentEffectId = 0;
 
 export function resetEffectId(){
-    currentEffectId = 0;
+    componentHookIds.reset();
 }
 
 export function resetEffects(){
@@ -34,18 +33,34 @@ export function resetPendingEffects(){
 }
 
 export function useEffect(callBack, deps:any[]|null=null){
-    currentEffectId++;
-    const effect = effects.find(effect => effect.id == currentEffectId);
+    const effectId = getEffectId();
+    const effect = effects.find(effect => effect.id == effectId &&
+                                          effect.componentName == getCurrentComponent()?.name);
 
     if(!effect){
-        console.log('on mount effect');
-        effects.push({id:currentEffectId, deps, componentName: getCurrentComponent().name || ''});
-        pendingEffects.push({effect:callBack, componentName:getCurrentComponent().name || ''});
+        effects.push({id:effectId, deps, componentName: getCurrentComponent()?.name || ''});
+        pendingEffects.push({effect:callBack, componentName:getCurrentComponent()?.name || ''});
     }else {
         if(depsChanged(effect.deps, deps)) {
             effect.deps = deps;
-            pendingEffects.push({effect:callBack, componentName:getCurrentComponent().name || ''})
+            pendingEffects.push({effect:callBack, componentName:getCurrentComponent()?.name || ''})
         };
+    }
+}
+
+function getEffectId(){
+    const currentComponent = getCurrentComponent();
+    if(!currentComponent) return 0;
+
+    const componentHook = componentHookIds.get().find(c => c.componentName === currentComponent?.name);
+
+    if(componentHook){
+        componentHook.lastEffectId ++;
+        return componentHook.lastEffectId;
+    }else{
+        const {name} = currentComponent;
+        componentHookIds.add({componentName:name || '', lastStateId: 0, lastEffectId: 1});
+        return 1;
     }
 }
 
@@ -65,7 +80,6 @@ function depsChanged(oldDeps:any[]|null, newDeps:any[]|null){
 
 export function runAllPendingEffect(){
     runAllUnMountingEffects();
-    console.log('unmounted component', getUnMountedComponent());
     pendingEffects.forEach(e => {
         let result = e.effect();
         if(typeof result == 'function') unmountingEffects.push({effect: result, componentName: e.componentName});
@@ -78,6 +92,7 @@ function runAllUnMountingEffects(){
     const unMountedComponents = getUnMountedComponent();
     const effectsToRun = unmountingEffects.filter(e => unMountedComponents.includes(e.componentName));
 
+
     effectsToRun.forEach(e => {
         e.effect();
     });
@@ -86,10 +101,5 @@ function runAllUnMountingEffects(){
 
     //remove effect
     effects = effects.filter(e => !unMountedComponents.includes(e.componentName));
-    console.log('unmounting ...', {unMountedComponents, effects, unmountingEffects})
-}
-
-export function setCurrentEffectId(currentComponentName:string){
-    const effectId = effects.find(effect => effect.componentName == currentComponentName)?.id || 1;
-    currentEffectId = effectId  - 1;
+    resetUnMountedComponents();
 }

@@ -1,6 +1,5 @@
 import {render} from "../render";
-import {VNodeType} from "../types";
-import {setCurrentEffectId} from "./useEffect";
+import { componentHookIds} from "../shared";
 
 type ComponentType = {
     id: number,
@@ -24,29 +23,33 @@ export function resetStates(){
     states = [];
 }
 
-let currentStateId = 0;
 let currentComponentId = 0;
-let currentComponent:ComponentType;
+let currentComponent:ComponentType | null;
 let componentNames:string[] = [];
-let oldComponentNames:string[] = [];
 
-export function resetStateId(){
-    currentStateId = 0;
+let unMountedComponents:string[] = [];
+export function addUnMountedComponent(names:string[]){
+    if(names.length) unMountedComponents = unMountedComponents.concat(names);
 }
+
+export function getUnMountedComponent():string[] {
+    return unMountedComponents;
+}
+
+export function resetUnMountedComponents(){
+    unMountedComponents = [];
+}
+
 
 export function resetComponentId(){
     currentComponentId = 0;
 }
 
 export function resetComponentNames() {
-    oldComponentNames = [...componentNames];
     componentNames = [];
 }
 
-export function getUnMountedComponent():string[] {
-    console.log({oldComponentNames, componentNames});
-    return oldComponentNames.filter(name => !componentNames.includes(name));
-}
+
 
 export function setCurrentComponent(factory, container:HTMLElement|undefined, name:string='', props:any){
     currentComponentId++;
@@ -67,7 +70,6 @@ export function setCurrentComponent(factory, container:HTMLElement|undefined, na
     componentNames.push(name);
 
     currentComponent = {factory, id: currentComponentId, container, name};
-    console.log({component:name});
     return name;
 }
 
@@ -80,7 +82,6 @@ export function getCurrentComponent(){
 }
 
 export function setCurrentNode(node, currentComponentName){
-    // console.log('setCurrentDom');
     const state = states.find(state => state.component?.name == currentComponentName);
 
     if(state && state.component){
@@ -90,22 +91,43 @@ export function setCurrentNode(node, currentComponentName){
 }
 
 export default function useState(initialSate:any=null){
-    currentStateId++;
-    return createOrGetState(currentStateId, initialSate);
+    return createOrGetState(initialSate);
 }
 
-function createOrGetState(id:number, initialState=null){
-    const state = states.find((item) => item.id == id);
+function getStateId(){
+    if(!currentComponent) return 0;
+
+    const componentHook = componentHookIds.get().find(c => c.componentName === currentComponent?.name);
+
+    if(componentHook){
+        componentHook.lastStateId ++;
+        return componentHook.lastStateId;
+    }else{
+        const {name} = currentComponent;
+        componentHookIds.add({componentName:name || '', lastStateId: 1, lastEffectId: 0});
+        return 1;
+    }
+}
+
+export function updateNodeRefInStates(componentName:string, node:Node){
+    const state = states.find( s => s.component?.name === componentName);
+    if(state && state.component) state.component.node = node;
+}
+
+function createOrGetState(initialState=null){
+    const stateId = getStateId();
+    const state = states.find((item) => item.id === stateId && item.component?.name === currentComponent?.name);
 
     if(state){
         return [state.value, state.set];
     }else{
+        const {name : componentName} = currentComponent || {name:''};
         const newState:state =
             {
-                id,
+                id:stateId,
                 value: initialState,
-                set: (newState) => setState(newState, id),
-                component:currentComponent
+                set: (newState) => setState(newState, stateId, componentName || ''),
+                component: currentComponent
             };
 
         states.push(newState);
@@ -113,41 +135,26 @@ function createOrGetState(id:number, initialState=null){
     }
 }
 
-function setState(newState, id){
-    const state = states.find((item) => item.id == id);
+function setState(newState, id, componentName:string){
+    const state = states.find((item) => item.id == id && item.component?.name === componentName);
 
     if(state && state.value != newState){
         state.value = newState;
 
-        const startingId = findStartingId(state.component);
-        currentStateId = startingId - 1;
 
         currentComponentId = state.component ? state.component.id: 0;
 
         componentNames.push(state.component?.name || '');
 
-        setCurrentEffectId(state.component?.name || '');
+        currentComponent = state.component ? {...state.component} : null;
 
-        render(state.component?.factory(), state.component?.container, state.component?.node);
+        //reset componentHooks
+        componentHookIds.reset();
+
+        const newNode = state.component?.factory();
+        render(newNode, state.component?.container, state.component?.node);
     }
 
 
 
-}
-
-function findStartingId(component:ComponentType | null):number{
-    const state = {...states.find(item => compareComponents(item.component, component))};
-    return state?.id || 0;
-}
-
-function compareComponents(first:ComponentType|null, second:ComponentType|null){
-    if(!first || !second) return false;
-
-    return first.id == second.id;
-}
-
-function findByCompId(comp:ComponentType|null, currentComponentId:number){
-    if(!comp) return false;
-
-    return comp.id == currentComponentId;
 }

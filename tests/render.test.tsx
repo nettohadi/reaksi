@@ -96,19 +96,19 @@ describe('render()', () => {
 
     it('should update element (diff) when some children are removed', () => {
         /* Setup */
-        const Component_1 = () => <div class="first" test="second"><div><p>1</p><p>2</p><p>3</p></div></div>
-        const Component_2 = () => <div class="first"><div><p>1</p><p>2</p></div></div>
+        const Component_1 = () => <div class="first" test="second"><div><p class="p">1</p><p>2</p><p>3</p></div></div>
+        const Component_2 = () => <div class="first"><div><p class="new">1</p><p>2</p></div></div>
         const container = document.createElement('div');
 
         /* Invoke */
         reaksi.render(<Component_1/>, container);
         /* Assert */
-        expect(container.innerHTML).toEqual(removeAllWhiteSpaces(`<div class="first" test="second"><div><p>1</p><p>2</p><p>3</p></div></div>`));
+        expect(container.innerHTML).toEqual(removeAllWhiteSpaces(`<div class="first" test="second"><div><p class="p">1</p><p>2</p><p>3</p></div></div>`));
 
         /* Invoke */
         reaksi.render(<Component_2/>, container);
         /* Assert */
-        expect(container.innerHTML).toEqual(removeAllWhiteSpaces(`<div class="first"><div><p>1</p><p>2</p></div></div>`));
+        expect(container.innerHTML).toEqual(removeAllWhiteSpaces(`<div class="first"><div><p class="new">1</p><p>2</p></div></div>`));
     });
 
     it('should render children component (slot) correctly', () => {

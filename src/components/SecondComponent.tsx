@@ -17,8 +17,8 @@ export default function SecondComponent(){
             <h2>number : {number}</h2>
             <button onclick={() => {setNumber(number + 1)}}>+ number</button>
             <button onclick={() => {setNumber(number - 1)}}>- number</button>
-            {number < 10 && <ThirdComponent key={2}/>}
-            <ThirdComponent key={1}/>
+            {number < 10 && <ThirdComponent key={1}/>}
+            {number < 15 && <ThirdComponent key={2}/>}
         </div>
 
     );
