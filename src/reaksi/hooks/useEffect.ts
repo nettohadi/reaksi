@@ -1,19 +1,6 @@
-/* TODO : create onUnMounted lifecycle*/
-
-
 import {getCurrentComponent, getUnMountedComponent, resetUnMountedComponents} from "./useState";
 import {componentHookIds} from "../shared";
-
-type EffectType = {
-    id: number,
-    deps: any[]|null,
-    componentName:string
-}
-
-type ComponentEffectType = {
-    effect:Function,
-    componentName:string
-}
+import {ComponentEffectType, EffectType} from "../types";
 
 let effects: EffectType[] = []
 let pendingEffects: ComponentEffectType[] = [];
@@ -26,10 +13,6 @@ export function resetEffectId(){
 
 export function resetEffects(){
     effects = [];
-}
-
-export function resetPendingEffects(){
-    pendingEffects = [];
 }
 
 export function useEffect(callBack, deps:any[]|null=null){
@@ -59,7 +42,7 @@ function getEffectId(){
         return componentHook.lastEffectId;
     }else{
         const {name} = currentComponent;
-        componentHookIds.add({componentName:name || '', lastStateId: 0, lastEffectId: 1});
+        componentHookIds.add({componentName:name || '', lastStateId: 0, lastEffectId: 1, lastSelectorId: 0});
         return 1;
     }
 }

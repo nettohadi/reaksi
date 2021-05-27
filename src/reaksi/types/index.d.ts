@@ -8,7 +8,8 @@ export type VNodeType = {
 export type ComponentHookIdType = {
     componentName:string,
     lastStateId:number,
-    lastEffectId:number
+    lastEffectId:number,
+    lastSelectorId:number
 }
 
 export type ComponentHookType = {
@@ -28,4 +29,30 @@ export type ComponentHookType = {
         ]
     }
 
+}
+
+type EffectType = {
+    id: number,
+    deps: any[]|null,
+    componentName:string
+}
+
+type ComponentEffectType = {
+    effect:Function,
+    componentName:string
+}
+
+type ComponentType = {
+    id: number,
+    factory: Function,
+    node?:Node,
+    container?:HTMLElement,
+    name?:string
+}
+
+type state = {
+    id: number,
+    value: any,
+    set: Function,
+    component: ComponentType | null
 }

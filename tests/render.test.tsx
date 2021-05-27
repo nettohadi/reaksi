@@ -130,30 +130,18 @@ describe('render()', () => {
         `));
     });
 
-    // it('should render children component (slot) correctly', () => {
-    //     /* Setup */
-    //     const Component_1 = (props?) => {
-    //         console.log({children: props?.children})
-    //         return (
-    //             <div class="first">first</div>
-    //         )
-    //     }
-    //
-    //     const Component_2 = () => <div class="second"><span>second</span></div>
-    //     const Component_3 = () => <div class="third"><Component_1><span>test span</span></Component_1></div>
-    //     const container = document.createElement('div');
-    //     console.log({componenent_3: Component_3()})
-    //     /* Invoke */
-    //     reactClone.render(<Component_3/>, container);
-    //     /* Assert */
-    //     expect(container.innerHTML).toEqual(removeAllWhiteSpaces(`
-    //         <div class="third"><div class="first">first<span>test span</span></div></div>
-    //     `));
-    // });
+   /* Bug #3 : Can not render Component without root html element*/
+   it(`should be able to render Component without specifying root`, () => {
+       /* Setup */
+       const container = document.createElement('div');
+       const GrandChild = () => <div>test</div>;
+       const Child = () => <GrandChild/>;
+       const App = () => <Child/>;
 
-    // it(' should register event listener correctly', () => {
-    //     /* Setup */
-    //     /* Invoke */
-    //     /* Assert */
-    // });
+       /* Invoke */
+       reaksi.render(<App/>, container);
+
+       /* Assert*/
+       expect(container.innerHTML).toBe('<div>test</div>');
+   })
 });

@@ -6,7 +6,7 @@ import {
     setCurrentComponent,
     setCurrentNode, updateNodeRefInStates
 } from "./hooks/useState";
-import {resetEffectId, resetPendingEffects, runAllPendingEffect} from "./hooks/useEffect";
+import {resetEffectId, runAllPendingEffect} from "./hooks/useEffect";
 
 export function render(vnode: VNodeType, container: HTMLElement | null | undefined, oldDom?:Node | null) {
 
@@ -86,7 +86,6 @@ function getComponentNames(vNodes:VNodeType[]){
 }
 
 function checkForUnMountedComponent(newVNodes:VNodeType[], oldVNodes:VNodeType[]){
-    /* TODO: How do we know if component is unmounted*/
     const oldChildrenComponentNames = getComponentNames(oldVNodes);
     const newChildrenComponentNames = getComponentNames(newVNodes);
     const unMountedComponents = oldChildrenComponentNames.filter(c => !newChildrenComponentNames.includes(c));
@@ -142,6 +141,10 @@ function isFunctionalComponent(vnode:VNodeType, container: HTMLElement) {
         const componentName = setCurrentComponent(() => factory(props), container, functionName, props);
 
         vnode = factory(vnode.props);
+
+        /* Check again recursively */
+        if (vnode && typeof vnode.type == 'function') vnode = isFunctionalComponent(vnode, container);
+
         /* associate vnode with the component*/
         vnode.componentName = componentName;
     }
@@ -161,7 +164,6 @@ function createNode(vNode:VNodeType){
 }
 
 function mountNode(vNode, container): Node {
-
     let newNode = createNode(vNode);
     newNode = updateNode(newNode, vNode, null);
 

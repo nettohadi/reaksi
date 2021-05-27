@@ -12,7 +12,7 @@ module.exports = {
     devServer: {
         port: 3333,
         contentBase: path.resolve(__dirname, 'public'),
-        filename: 'react-clone.js',
+        filename: 'reaksi.js',
     },
     mode: "development",
     module: {

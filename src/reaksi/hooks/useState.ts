@@ -1,21 +1,6 @@
 import {render} from "../render";
 import { componentHookIds} from "../shared";
-
-type ComponentType = {
-    id: number,
-    factory: Function,
-    node?:Node,
-    container?:HTMLElement,
-    name?:string
-}
-
-type state = {
-    id: number,
-    value: any,
-    set: Function,
-    component: ComponentType | null
-}
-
+import {ComponentType, state} from "../types";
 
 let states: state[] = [];
 
@@ -59,7 +44,9 @@ export function setCurrentComponent(factory, container:HTMLElement|undefined, na
 
     if(props.key) name = name + '_' + props.key;
 
-    if(componentAlreadyExist && !props.key) {
+    const useContextProvider = 'Provider';
+
+    if(componentAlreadyExist && !props.key && name !== useContextProvider) {
         console.error(`You need to specify a key for "${name}" if you want to use it more than once`);
         name = name + '_' + currentComponentId;
 
@@ -104,7 +91,7 @@ function getStateId(){
         return componentHook.lastStateId;
     }else{
         const {name} = currentComponent;
-        componentHookIds.add({componentName:name || '', lastStateId: 1, lastEffectId: 0});
+        componentHookIds.add({componentName:name || '', lastStateId: 1, lastEffectId: 0, lastSelectorId:0});
         return 1;
     }
 }
@@ -138,7 +125,7 @@ function createOrGetState(initialState=null){
 function setState(newState, id, componentName:string){
     const state = states.find((item) => item.id == id && item.component?.name === componentName);
 
-    if(state && state.value != newState){
+    if(state && state.value !== newState){
         state.value = newState;
 
 

@@ -1,5 +1,5 @@
 {
-  "name": "react-clone",
+  "name": "reaksi",
   "version": "1.0.0",
   "description": "An attempt to create react like library",
   "main": "index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "react-clone"
+    "url": "reaksi"
   },
   "keywords": [
     "React",
@@ -18,7 +18,9 @@
   ],
   "author": "Abdul Hadi Syahbal",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "redux": "^4.1.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.14.0",
     "@babel/plugin-syntax-jsx": "^7.12.13",
