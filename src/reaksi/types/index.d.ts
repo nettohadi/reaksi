@@ -7,31 +7,29 @@ export type VNodeType = {
 
 export type ComponentHookIdType = {
     componentName:string,
-    lastStateId:number,
-    lastEffectId:number,
-    lastSelectorId:number
+    hookLastId?:any,
+    lastStateId?:number,
+    lastEffectId?:number,
+    lastSelectorId?:number
 }
 
 export type ComponentHookType = {
-    id: number,
     factory: Function,
-    node?:Node,
-    container?:HTMLElement,
-    name?:string,
+    parentNode?:HTMLElement,
     hooks: {
-        states: [
-            {id, value, set},
-            {id, value, set}
-        ],
-        effects : [
-            {id, deps},
-            {id, deps}
-        ]
+        states: StateType[],
+        effects : EffectType[],
+        refs: RefType[],
+        selectors: SelectorType[]
     }
 
 }
 
-type EffectType = {
+export const componentHooks:Map<Node, ComponentHookType> = new Map();
+
+// componentHooks.set(null, {factory, hooks: {state: [{value:1, set:(newState) => {}}]}});
+
+type TheEffectType = {
     id: number,
     deps: any[]|null,
     componentName:string
@@ -55,4 +53,23 @@ type state = {
     value: any,
     set: Function,
     component: ComponentType | null
+}
+
+type StateType = {
+    value:any,
+    set:SetStateType
+}
+
+type SetStateType = (newState:any) => {}
+
+type EffectType = {
+    oldDeps:any[]
+}
+
+type RefType = {
+    current:any
+}
+
+type SelectorType = {
+    value:any
 }

@@ -1,8 +1,8 @@
 import {getCurrentComponent, getUnMountedComponent, resetUnMountedComponents} from "./useState";
 import {componentHookIds} from "../shared";
-import {ComponentEffectType, EffectType} from "../types";
+import {ComponentEffectType, TheEffectType} from "../types";
 
-let effects: EffectType[] = []
+let effects: TheEffectType[] = []
 let pendingEffects: ComponentEffectType[] = [];
 let unmountingEffects: ComponentEffectType[] = [];
 
@@ -16,7 +16,7 @@ export function resetEffects(){
 }
 
 export function useEffect(callBack, deps:any[]|null=null){
-    const effectId = getEffectId();
+    const effectId = componentHookIds.getIdByKey('EFFECT') || 1;
     const effect = effects.find(effect => effect.id == effectId &&
                                           effect.componentName == getCurrentComponent()?.name);
 
@@ -31,44 +31,41 @@ export function useEffect(callBack, deps:any[]|null=null){
     }
 }
 
-function getEffectId(){
-    const currentComponent = getCurrentComponent();
-    if(!currentComponent) return 0;
-
-    const componentHook = componentHookIds.get().find(c => c.componentName === currentComponent?.name);
-
-    if(componentHook){
-        componentHook.lastEffectId ++;
-        return componentHook.lastEffectId;
-    }else{
-        const {name} = currentComponent;
-        componentHookIds.add({componentName:name || '', lastStateId: 0, lastEffectId: 1, lastSelectorId: 0});
-        return 1;
-    }
-}
+/**
+ * Used to compare old and new dependencies in useEffect & useMemo hook
+ * @param oldDeps : old dependencies
+ * @param newDeps : new dependencies
+ */
 
 function depsChanged(oldDeps:any[]|null, newDeps:any[]|null){
-    if(oldDeps === null || newDeps === null) return true;
 
-    if(oldDeps.length == 0 && newDeps.length == 0) return false;
+    const isChanged = (
+            !oldDeps ||
+            oldDeps.length !== newDeps?.length ||
+            newDeps?.some((arg, index) => arg !== oldDeps[index])
+    );
 
-    for (let index=0;index <= oldDeps.length-1; index++){
-        if(oldDeps[index] !== newDeps[index]){
-            return true;
-        }
-    }
-
-    return false;
+    return isChanged;
 }
 
+/**
+ * run all effects that was determined in useEffect hook
+ * Effect may run or not depending on condition ( whether one or more dependencies are changed )
+ */
 export function runAllPendingEffect(){
+    /* run unmounting effects first if there are any */
     runAllUnMountingEffects();
-    pendingEffects.forEach(e => {
+    pendingEffects.forEach((e, index) => {
+
+        /* Critical !!! We need to get rid the effect from the list before invoking it
+        *  If not, we'll run into infinite loop hell of rerender when effect contains setState call */
+        /* TODO: make test for this case */
+        pendingEffects = pendingEffects.slice(index,index);
+
         let result = e.effect();
         if(typeof result == 'function') unmountingEffects.push({effect: result, componentName: e.componentName});
     });
 
-    pendingEffects = [];
 }
 
 function runAllUnMountingEffects(){

@@ -16,14 +16,14 @@ describe('useState()', () => {
             const [number, setNumber] = useState(0);
             const increment = () => {
                 setNumber(number + 1);
-            }
+            };
 
             return (
                 <div>
                     <div data-testId="number">{number}</div>
                     <button data-testId="button" onclick={increment}>+</button>
                 </div>
-        );
+            );
         }
 
         const container = document.createElement('div');
@@ -56,8 +56,8 @@ describe('useState()', () => {
                 <div>
                     <h2 data-testId="number">{number}</h2>
                     <button data-testId="button" onclick={() => setNumber(number + 1)}></button>
-            </div>
-        );
+                </div>
+            );
         }
 
         const Second = () => {
@@ -98,17 +98,17 @@ describe('useState()', () => {
             return (
                 <div>
                     <h2 data-testid="number">number is {number}</h2>
-            <button data-testid="button" onclick={() => setNumber(number + 1)}>increment</button>
-            </div>
-        );
+                    <button data-testid="button" onclick={() => setNumber(number + 1)}>increment</button>
+                </div>
+            );
         }
 
         const First = () => {
             return (
                 <div>
                     <h2>h2</h2>
-                <p>p</p>
-                <Second/>
+                    <p>p</p>
+                    <Second/>
                 </div>
             );
         }
@@ -116,7 +116,7 @@ describe('useState()', () => {
         const container = document.createElement('div');
 
         /* Invoke */
-        reaksi.render(<First/>,container);
+        reaksi.render(<First/>, container);
         const button = container.querySelector("[data-testid='button']") as Node;
         await fireEvent(button, new MouseEvent('click'));
 
@@ -137,7 +137,7 @@ describe('useState()', () => {
      Bug #2 : When childNode replace another childNode, state changes is not reflected on the dom, because
      virtual childNode did not update it's reference to new node in the dom tree, it still has reference
      to the old node. In this test, we need to make sure that when childNode replace another childNode,
-     it needs to update it's node reference too.
+     virtual childNode needs to update it's node reference too.
      */
 
     it('should update the right node, when there are changes in position, or some nodes being removed from' +
@@ -150,9 +150,9 @@ describe('useState()', () => {
                 <div>
                     <div data-testid="counter">{counter}</div>
                     <button data-testid="button" onclick={() => setCounter(counter + 1)}>+</button>
-            </div>
-        );
-        }
+                </div>
+            );
+        };
 
         const container = document.createElement('div');
 
@@ -162,11 +162,11 @@ describe('useState()', () => {
         const buttons = container.querySelectorAll("[data-testid='button']");
 
         /* Assert */
-        await fireEvent(buttons[0],new MouseEvent('click'));
+        await fireEvent(buttons[0], new MouseEvent('click'));
         expect(counters[0].innerHTML).toBe('1')
 
-        await fireEvent(buttons[1],new MouseEvent('click'));
-        await fireEvent(buttons[1],new MouseEvent('click'));
+        await fireEvent(buttons[1], new MouseEvent('click'));
+        await fireEvent(buttons[1], new MouseEvent('click'));
         expect(counters[1].innerHTML).toBe('2')
 
         /* Remove first component*/
@@ -174,8 +174,80 @@ describe('useState()', () => {
         const counter = container.querySelector("[data-testid='counter']") as HTMLElement;
         const button = container.querySelector("[data-testid='button']") as Node;
 
-        await fireEvent(button,new MouseEvent('click'));
-        expect(counter.innerHTML).toBe('3')
+        await fireEvent(button, new MouseEvent('click'));
+        expect(counter.innerHTML).toBe('3');
 
     });
-});
+
+    it(`should associate the state with the correct component when one ore more of the components
+    with the same name are unmounted (caused by falsy condition).`, async () => {
+        /* Setup */
+        const container = document.createElement('div');
+        const componentButtons: { click: Function }[] = [];
+        let appButton: any;
+
+        const Component = () => {
+            const [value, setValue] = useState(0);
+            componentButtons.push({click: () => setValue((value) => value + 1)})
+            return (
+                <div>
+                    <h3 data-value>{value}</h3>
+                </div>
+            );
+        }
+
+        const App = () => {
+            const [value, setValue] = useState(1);
+            appButton = {click: () => setValue(value => value + 1)}
+            return (
+                <div>
+                    <Component/>
+                    {value == 1 && <Component/>}
+                    <Component/>
+                </div>
+            );
+        }
+
+        /* Invoke */
+        reaksi.render(<App/>, container);
+
+        await componentButtons[0].click();
+        await componentButtons[1].click();
+        await componentButtons[1].click();
+        await componentButtons[2].click();
+        await componentButtons[2].click();
+        await componentButtons[2].click();
+        await appButton.click();
+
+
+        /* Assert */
+        const values = container.querySelectorAll("[data-value]");
+        expect(values[0].innerHTML).toBe('1');
+        expect(values[1].innerHTML).toBe('3');
+
+    });
+
+    it('update state correctly, when setState is invoked using function as parameter', () => {
+        /* Setup */
+        const container = document.createElement('div');
+        let button;
+        let valueBucket = 0;
+
+        const Component = () => {
+            const [value, setValue] = useState(1);
+            valueBucket = value;
+            button = {click:() => setValue( state => state + 1)};
+            return (<div></div>);
+        }
+
+        /* Invoke */
+        reaksi.render(<Component/>, container);
+        button.click();
+        button.click();
+        button.click();
+
+        /* Assert */
+        expect(valueBucket).toBe(4);
+    });
+}
+);

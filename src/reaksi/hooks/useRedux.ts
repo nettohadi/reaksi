@@ -13,7 +13,7 @@ export function useSelector(callback){
     const result = callback(store.getState());
     const [, setState] = useState(result);
 
-    const selectorId = getSelectorId();
+    const selectorId = componentHookIds.getIdByKey('SELECTOR') || 1;
     const component = getCurrentComponent();
     const existingSelector = selectors.find(s => s.id === selectorId && s.componentName === component?.name);
 
@@ -27,21 +27,21 @@ export function useSelector(callback){
     return result;
 }
 
-function getSelectorId(){
-    const currentComponent = getCurrentComponent();
-    if(!currentComponent) return 0;
-
-    const componentHook = componentHookIds.get().find(c => c.componentName === currentComponent?.name);
-
-    if(componentHook){
-        componentHook.lastSelectorId ++;
-        return componentHook.lastSelectorId;
-    }else{
-        const {name} = currentComponent;
-        componentHookIds.add({componentName:name || '', lastStateId: 0, lastEffectId: 0, lastSelectorId: 1});
-        return 1;
-    }
-}
+// function getSelectorId(){
+//     const currentComponent = getCurrentComponent();
+//     if(!currentComponent) return 0;
+//
+//     const componentHook = componentHookIds.get().find(c => c.componentName === currentComponent?.name);
+//
+//     if(componentHook){
+//         componentHook.lastSelectorId ++;
+//         return componentHook.lastSelectorId;
+//     }else{
+//         const {name} = currentComponent;
+//         componentHookIds.add({componentName:name || '', lastStateId: 0, lastEffectId: 0, lastSelectorId: 1});
+//         return 1;
+//     }
+// }
 
 export function Provider(props){
     store = props.store || {};

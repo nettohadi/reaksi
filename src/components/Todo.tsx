@@ -1,4 +1,4 @@
-import reaksi, {useState} from "../reaksi";
+import reaksi, {useEffect, useState} from "../reaksi";
 import TodoItem from "./TodoItem";
 import store from "../redux/store";
 import {Provider} from "../reaksi/hooks/useRedux";
@@ -13,35 +13,51 @@ const initialValue = [
 let lastId = 2;
 
 const Todo = () => {
-    const [todos, setTodos] = useState(initialValue);
-    const [text, setText] = useState('');
-    // const [count, setCount] = useState(0);
 
-    console.log({state:store.getState()});
+    const [value, setValue] = useState(1);
+    const [angka, setAngka] = useState(1);
 
-    const addToDo = (e) => {
-        e.preventDefault();
-        const newTodos = [...todos, {id:++lastId, desc:text, done:false}];
-        setTodos(newTodos);
-    }
+    const [list, setList] = useState([
+        {id:1, name:'hadi'},
+        {id:2, name:'susan'},
+        {id:3, name:'humaira'},
+    ])
 
-    const removeToDo = (id) => {
-        const newTodo = todos.filter(item => item.id !== id);
-        setTodos(newTodo);
-    }
+    // if(value == 2) {
+    //     console.log('run effect');
+    //     const newList = list.filter(item => item.id !== 1);
+    //     setList([...newList]);
+    // }
+
+    useEffect(() => {
+
+        if(value == 2) {
+            console.log('run effect value');
+            const newList = list.filter(item => item.id !== 1);
+            setList([...newList]);
+        }
+    }, [value]);
+
+    useEffect(() => {
+
+        if(angka == 2) {
+            console.log('run effect value');
+            const newList = list.filter(item => item.id !== 2);
+            setList([...newList]);
+        }
+    }, [angka]);
 
     return (
         <div style={styles.container}>
-            <Provider store={store}>
                 <div>
-                    <form onsubmit={addToDo}>
-                        <input type="text" placeholder="type something" value={text} onchange={(e) => setText(e.target.value)}/>
-                        <button onclick={addToDo}>Add Todo</button>
-                    </form>
+                    <h2>value : {value}</h2>
+                    <h2>angka : {angka}</h2>
+                    <div>
+                        <button onclick={() => setValue(value + 1)}>+</button>
+                        <button onclick={() => setAngka(angka + 1)}>-</button>
+                    </div>
                 </div>
-                <Counter/>
-                <Number/>
-            </Provider>
+            {list.map(item => <Number name={item.name} key={item.id}/>)}
         </div>
     )
 }

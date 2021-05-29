@@ -17,7 +17,6 @@ describe('render()', () => {
     });
 
     it('should render every element to the dom container correctly', () => {
-
         /* Setup */
         const Component = () => {
           return (

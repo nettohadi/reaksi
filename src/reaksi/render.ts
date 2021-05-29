@@ -8,7 +8,7 @@ import {
 } from "./hooks/useState";
 import {resetEffectId, runAllPendingEffect} from "./hooks/useEffect";
 
-export function render(vnode: VNodeType, container: HTMLElement | null | undefined, oldDom?:Node | null) {
+export function render(vnode: VNodeType, container: HTMLElement | null | undefined, oldDom?: Node | any | null) {
 
     /* if vnode or container are null, just bail */
     if (!vnode || !container) return
@@ -26,25 +26,22 @@ export function render(vnode: VNodeType, container: HTMLElement | null | undefin
     cleanUpAfterRender();
 }
 
-function diff(vNode: VNodeType, oldNode, container) {
+function diff(vNode: VNodeType, oldNode, container, childIndex: number | null = null) {
     /* check if it's functional component */
-    vNode = isFunctionalComponent(vNode, container);
+    vNode = isFunctionalComponent(vNode, container, childIndex);
 
     /* get old vNode */
     const oldVNode: VNodeType = oldNode && oldNode._vNode;
-    if(!oldVNode) {
+    if (!oldVNode) {
         mountElement(vNode, container);
         return;
-    };
+    }
 
-    /*
-     check if some components does not exist in the new vNode tree
-     if it does not exist, it should be unmounted
-    */
-    checkForUnMountedComponent(vNode.children, oldVNode.children)
+
+    checkForUnMountedComponent(vNode.children, oldVNode.children);
 
     if (vNode.type !== oldVNode.type || (vNode.componentName && vNode.componentName !== oldVNode.componentName)) {
-        let newNode:Node = createNode(vNode);
+        let newNode: Node = createNode(vNode);
 
         newNode = updateNode(newNode, vNode, null);
         updateNodeRefInStates(vNode.componentName || '', newNode);
@@ -53,53 +50,75 @@ function diff(vNode: VNodeType, oldNode, container) {
 
 
         /* Do it recursively for children */
-        vNode.children.forEach((item) => {
-            mountElement(item, newNode);
+        vNode.children.forEach((item, index) => {
+            mountElement(item, newNode, index);
         });
     } else {
 
-        oldNode  = updateNode(oldNode, vNode, oldVNode);
+        oldNode = updateNode(oldNode, vNode, oldVNode);
 
         /* Do it recursively for children */
         vNode.children.forEach((childVNode, index) => {
-            diff(childVNode, oldNode.childNodes[index], oldNode);
+            if(childVNode.type !== 'boolean'){
+                diff(childVNode, oldNode.childNodes[index], oldNode, index);
+            }
         });
 
-        /* Remove unused old childNodes (unused means the old childNode does not exist in new vNode tree ) */
-        let oldChildNodes = oldNode.childNodes;
-        if (oldChildNodes.length > vNode.children.length) {
-            for (let i = oldChildNodes.length - 1; i >= vNode.children.length; i -= 1) {
-                oldChildNodes[i].remove();
-            }
+
+    }
+
+    /* Remove unused old childNodes (unused means the old childNode does not exist in new vNode tree ) */
+    let oldChildNodes = oldNode.childNodes;
+    if (oldChildNodes.length > vNode.children.length) {
+        for (let i = oldChildNodes.length - 1; i >= vNode.children.length; i -= 1) {
+            oldChildNodes[i].remove();
         }
+
+    }
+    else if(oldChildNodes.length === vNode.children.length){
+        vNode.children.forEach((child, index) => {
+            if(child.type === 'boolean'){
+
+                /* Unmount if it's a component*/
+                /* TODO : Make test for this case*/
+                if(oldChildNodes[index]._vNode.componentName) {
+                    addUnMountedComponent([oldChildNodes[index]._vNode.componentName])
+                }
+
+                oldChildNodes[index].remove();
+            }
+        })
     }
 
 }
 
-function getComponentNames(vNodes:VNodeType[]){
-    let names:string[] = [];
-    vNodes.forEach( node => {
-       if(typeof node.type == "function") names.push(node.type.name + (node.props.key ? '_' + node.props.key : ''));
+function getComponentNames(vNodes: VNodeType[]) {
+    let names: string[] = [];
+    vNodes.forEach((node, index) => {
+        if (typeof node.type == "function") names.push(node.type.name + (node.props.key ? '_' + node.props.key : ''));
     });
-
     return names;
 }
 
-function checkForUnMountedComponent(newVNodes:VNodeType[], oldVNodes:VNodeType[]){
+/**
+ check if some components do not exist in the new vNode tree
+ if it does not exist, it should be unmounted
+*/
+function checkForUnMountedComponent(newVNodes: VNodeType[], oldVNodes: VNodeType[]) {
     const oldChildrenComponentNames = getComponentNames(oldVNodes);
     const newChildrenComponentNames = getComponentNames(newVNodes);
     const unMountedComponents = oldChildrenComponentNames.filter(c => !newChildrenComponentNames.includes(c));
 
-    if(unMountedComponents.length) addUnMountedComponent(unMountedComponents);
+    if (unMountedComponents.length) addUnMountedComponent(unMountedComponents);
 }
 
-function updateNode(node, vNode, oldVNode){
-    if(vNode.type == 'text'){
-        node = updateTextNode(node, vNode,  oldVNode)
-    }else{
-        if(!oldVNode){
+function updateNode(node, vNode:VNodeType, oldVNode) {
+    if (vNode.type == 'text') {
+        node = updateTextNode(node, vNode, oldVNode)
+    } else {
+        if (!oldVNode) {
             node = setAttributeAndListeners(node, vNode);
-        }else{
+        } else {
             node = updateAttributesAndListeners(node, vNode, oldVNode);
         }
 
@@ -111,34 +130,34 @@ function updateNode(node, vNode, oldVNode){
 
 
 /* @param vdom = virtual dom to render */
+
 /* @param container = HTML Element where the dom will be mounted */
-function mountElement(vnode:VNodeType, container) {
+function mountElement(vnode: VNodeType, container, childIndex: number | null = null) {
     /* check if it's functional component */
-    vnode = isFunctionalComponent(vnode, container);
+    vnode = isFunctionalComponent(vnode, container, childIndex);
 
     /* mount to container */
     const newNode = mountNode(vnode, container);
 
-    /* set current node to associate with the component */
+    /* associate current node with the component */
     if (vnode.componentName) {
         setCurrentNode(newNode, vnode.componentName);
     }
 
     /* Do it recursively for children */
-    vnode.children?.forEach((item) => {
-        mountElement(item, newNode);
+    vnode.children?.forEach((item, index) => {
+        mountElement(item, newNode, index);
     });
 }
 
-function isFunctionalComponent(vnode:VNodeType, container: HTMLElement) {
+function isFunctionalComponent(vnode: VNodeType, container: HTMLElement, childIndex: number | null = null) {
     if (vnode && typeof vnode.type == 'function') {
         const factory: Function = vnode.type;
         const functionName = vnode.type.name;
         const {props} = vnode;
 
         /** track current component to be used by hooks */
-        const copyProps = {...vnode.props};
-        const componentName = setCurrentComponent(() => factory(props), container, functionName, props);
+        const componentName = setCurrentComponent(() => factory(props), container, functionName, props, childIndex);
 
         vnode = factory(vnode.props);
 
@@ -152,7 +171,7 @@ function isFunctionalComponent(vnode:VNodeType, container: HTMLElement) {
     return vnode;
 }
 
-function createNode(vNode:VNodeType){
+function createNode(vNode: VNodeType) {
     let newNode;
     if (vNode.type === "text") {
         newNode = document.createTextNode(vNode.props.textContent);
@@ -203,11 +222,10 @@ function updateAttributesAndListeners(node, vdom, oldVdom: VNodeType | null = nu
     });
 
 
-
     return node;
 }
 
-function setAttributeAndListeners(node:HTMLElement, vNode:VNodeType) : Node{
+function setAttributeAndListeners(node: HTMLElement, vNode: VNodeType): Node {
     const newProps = vNode.props || {};
 
     Object.keys(newProps).forEach(propName => {
@@ -217,14 +235,14 @@ function setAttributeAndListeners(node:HTMLElement, vNode:VNodeType) : Node{
     return node;
 }
 
-function doSetAttrAndListeners(node:HTMLElement, propName:string, newProp:any, oldProp:any){
+function doSetAttrAndListeners(node: HTMLElement, propName: string, newProp: any, oldProp: any) {
     if (propName.slice(0, 2) === "on") {
         // prop is an event handler
         const eventName = propName.toLowerCase().slice(2);
         // domElement.setAttribute(eventName, `{${newProp.name}}`);
         node.addEventListener(eventName, newProp, false);
 
-        if(oldProp) {
+        if (oldProp) {
             node.removeEventListener(eventName, oldProp, false);
         }
 
@@ -244,7 +262,7 @@ function doSetAttrAndListeners(node:HTMLElement, propName:string, newProp:any, o
 }
 
 function updateTextNode(node, vNode, oldVNode) {
-    if(!oldVNode) return node;
+    if (!oldVNode) return node;
 
     if (vNode.props.textContent !== oldVNode.props?.textContent) {
         node.textContent = vNode.props.textContent;
@@ -253,7 +271,7 @@ function updateTextNode(node, vNode, oldVNode) {
     return node;
 }
 
-function cleanUpAfterRender(){
+function cleanUpAfterRender() {
     // resetPendingEffects();
     resetEffectId();
     resetComponentId();
