@@ -1,4 +1,4 @@
-import reaksi from "../reaksi";
+import Reaksi from "../reaksi";
 import useState from "../reaksi/hooks/useState";
 import {useEffect} from "../reaksi/hooks/useEffect";
 

@@ -59,7 +59,6 @@ export function runAllPendingEffect(){
 
         /* Critical !!! We need to get rid the effect from the list before invoking it
         *  If not, we'll run into infinite loop hell of rerender when effect contains setState call */
-        /* TODO: make test for this case */
         pendingEffects = pendingEffects.slice(index,index);
 
         let result = e.effect();

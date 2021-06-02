@@ -1,4 +1,4 @@
-import reaksi, {useContext, useSelector} from "../reaksi";
+import Reaksi, {useContext, useSelector} from "../reaksi";
 
 const TodoItem = (props) => {
     const state = useSelector((state) => state.counterReducer);

@@ -1,4 +1,4 @@
-import reaksi, {useSelector, useDispatch} from "../reaksi";
+import Reaksi, {useSelector, useDispatch} from "../reaksi";
 
 const Counter = () => {
     const state = useSelector((state) => state.counterReducer);

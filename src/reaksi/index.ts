@@ -4,8 +4,14 @@ import {useEffect} from "./hooks/useEffect";
 import useState from "./hooks/useState";
 import {useContext, createContext} from "./hooks/useContext";
 import {useSelector, useDispatch, Provider} from "./hooks/useRedux";
+import {useRef} from "./hooks/useRef";
+import {Router, useRouter} from "./hooks/useRouter";
+import {Constants} from "./types";
+import {Fragment} from "./components/Fragment";
 
-const reaksi = {
+const ReduxProvider = Provider;
+
+const Reaksi = {
     render,
     createElement,
     useState,
@@ -14,10 +20,15 @@ const reaksi = {
     createContext,
     useSelector,
     useDispatch,
-    Provider
+    ReduxProvider,
+    useRef,
+    Router,
+    useRouter,
+    Fragment
 }
 
-export default reaksi;
+export default Reaksi;
+
 export {
     useState,
     useEffect,
@@ -25,6 +36,9 @@ export {
     createContext,
     useSelector,
     useDispatch,
-    Provider,
+    ReduxProvider,
+    useRef,
+    Router,
+    useRouter,
     render
 }

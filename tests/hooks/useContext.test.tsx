@@ -1,7 +1,5 @@
 import 'regenerator-runtime/runtime'
-import reaksi from "../../src/reaksi";
-import {removeAllWhiteSpaces} from "./../helpers";
-import {fireEvent} from "@testing-library/dom";
+import Reaksi from "../../src/reaksi";
 
 describe('useContext()', () => {
     it(`should be able to pass data / value to deeply nested component 
@@ -9,17 +7,17 @@ describe('useContext()', () => {
 
         /* Setup */
         const container = document.createElement('div');
-        const MyContext = reaksi.createContext({test: 1})
+        const MyContext = Reaksi.createContext({test: 1})
 
         const GrandChild1 = () => {
-            const state = reaksi.useContext(MyContext);
+            const state = Reaksi.useContext(MyContext);
             return (
                 <div data-testid="test">{state.test}</div>
             )
         }
 
         const GrandChild2 = () => {
-            const state = reaksi.useContext(MyContext);
+            const state = Reaksi.useContext(MyContext);
             return (
                 <div data-testid="test">{state.test}</div>
             )
@@ -44,7 +42,7 @@ describe('useContext()', () => {
         }
 
         /* Invoke */
-        reaksi.render(<Parent/>, container);
+        Reaksi.render(<Parent/>, container);
         const test = container.querySelectorAll("[data-testid='test']");
 
         /* Assert */

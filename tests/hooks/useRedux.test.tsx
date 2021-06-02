@@ -1,8 +1,7 @@
 import 'regenerator-runtime/runtime'
-import reaksi, {Provider, useDispatch} from "../../src/reaksi";
-import {fireEvent, logDOM} from "@testing-library/dom";
-import useState, {resetStates} from "../../src/reaksi/hooks/useState";
-import {resetEffects, useEffect} from "../../src/reaksi/hooks/useEffect";
+import Reaksi, {ReduxProvider as Provider, useDispatch} from "../../src/reaksi";
+import {fireEvent} from "@testing-library/dom";
+import {resetStates} from "../../src/reaksi/hooks/useState";
 import {storeMock as store, resetReduxMock} from "../helpers/reduxMock";
 import {resetSelectors} from "../../src/reaksi/hooks/useRedux";
 
@@ -21,14 +20,14 @@ describe(`useRedux hooks`, () => {
         store.setState('Hello');
 
         const GrandChild1 = () => {
-            const state = reaksi.useSelector((state) => state);
+            const state = Reaksi.useSelector((state) => state);
             return (
                 <div data-testid="test">{state}</div>
             )
         }
 
         const GrandChild2 = () => {
-            const state = reaksi.useSelector((state) => state);
+            const state = Reaksi.useSelector((state) => state);
             return (
                 <div data-testid="test">{state}</div>
             )
@@ -52,7 +51,7 @@ describe(`useRedux hooks`, () => {
         }
 
         /* Invoke */
-        reaksi.render(<Parent/>, container);
+        Reaksi.render(<Parent/>, container);
         const test = container.querySelectorAll("[data-testid='test']");
 
         /* Assert */
@@ -64,41 +63,45 @@ describe(`useRedux hooks`, () => {
         /* Setup */
         const container = document.createElement('div');
         store.setState({
-            GrandChild1: 1,
-            GrandChild2: 1
+            GrandChild1: {value:1},
+            GrandChild2: {value:1}
         });
 
         const spy1 = jest.fn().mockImplementation(() => '');
         const spy2 = jest.fn().mockImplementation(() => '');
 
         const GrandChild1 = () => {
-            let data = reaksi.useSelector((state) => state.GrandChild1);
+            let data = Reaksi.useSelector((state) => state.GrandChild1);
             const dispatch = useDispatch();
             const increment = () => {
-                store.getState().GrandChild1 = 2;
+                store.getState().GrandChild1 = {value: 2};
+                store.setState(store.getState());
                 dispatch();
             }
             spy1();
 
+
             return (
                 <div>
-                    <h3 data-testid="test">{data}</h3>
+                    <h3 data-testid="test">{data.value}</h3>
                     <button data-testid="button" onclick={increment}></button>
                 </div>
             )
         }
 
         const GrandChild2 = () => {
-            let data = reaksi.useSelector((state) => state.GrandChild2);
+            let data = Reaksi.useSelector((state) => state.GrandChild2);
             const dispatch = useDispatch();
             const increment = () => {
-                store.getState().GrandChild2 = 2;
+                store.getState().GrandChild2 = {value: 2};
+                store.setState(store.getState());
                 dispatch();
             }
             spy2();
+
             return (
                 <div>
-                    <h3 data-testid="test">{data}</h3>
+                    <h3 data-testid="test">{data.value}</h3>
                     <button data-testid="button" onclick={increment}></button>
                 </div>
             )
@@ -124,7 +127,7 @@ describe(`useRedux hooks`, () => {
         }
 
         /* Invoke */
-        reaksi.render(<Parent/>, container);
+        Reaksi.render(<Parent/>, container);
         const test = container.querySelectorAll("[data-testid='test']");
         const button = container.querySelectorAll("[data-testid='button']");
 

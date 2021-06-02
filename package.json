@@ -19,6 +19,7 @@
   "author": "Abdul Hadi Syahbal",
   "license": "ISC",
   "dependencies": {
+    "lodash.clonedeep": "^4.5.0",
     "redux": "^4.1.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import reaksi from "../reaksi";
+import Reaksi from "../reaksi";
 import SecondComponent from "./SecondComponent";
 import ThirdComponent from "./ThirdComponent";
 import useState from "../reaksi/hooks/useState";

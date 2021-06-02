@@ -1,6 +1,7 @@
 import {render} from "../render";
 import {componentHookIds} from "../shared";
-import {componentHooks, ComponentType, state} from "../types";
+import {componentHooks, ComponentType, state, VNodeType} from "../types";
+import {cloneDeep} from 'lodash';
 
 let states: state[] = [];
 
@@ -30,6 +31,10 @@ export function resetUnMountedComponents() {
     unMountedComponents = [];
 }
 
+export function setCurrentComponentToNull(){
+    currentComponent = null;
+}
+
 
 export function resetComponentId() {
     currentComponentId = 0;
@@ -55,7 +60,7 @@ export function setCurrentComponent(factory,
 
     const useContextProvider = 'Provider';
 
-    if (componentAlreadyExist && !props.key && name !== useContextProvider) {
+    if (componentAlreadyExist && !props.key && name !== useContextProvider && name !== 'Fragment') {
         if (!__TEST__) {
             console.warn(`You need to specify a key for "${name}" 
                          if you want to use it more than once`);
@@ -122,31 +127,53 @@ function createOrGetState(initialState = null) {
     }
 }
 
-function _createOrGetState(initialState: any | null = null) {
-    const stateId = componentHookIds.getIdByKey('STATE') || 1;
-    // const state = componentHooks.get();
-}
+// function _createOrGetState(initialState: any | null = null) {
+//     const stateId = componentHookIds.getIdByKey('STATE') || 1;
+//     // const state = componentHooks.get();
+// }
+
 
 function setState(newStateOrCallback, id, componentName: string) {
     const state = states.find((item) => item.id == id && item.component?.name === componentName);
 
+    if(typeof state == 'undefined') return;
+
     let newState: any = newStateOrCallback;
     if (typeof newStateOrCallback === 'function') {
-        newState = newStateOrCallback(state?.value || null);
+        newState = newStateOrCallback(state.value);
     }
 
-    if (state && !Object.is(state.value, newState)) {
+    if (state && state.value !== newState) {
         state.value = newState;
 
         currentComponentId = state.component ? state.component.id : 0;
-        componentNames.push(state.component?.name || '');
         currentComponent = state.component ? {...state.component} : null;
 
         //reset componentHooks
         componentHookIds.reset();
 
-        const newNode = state.component?.factory();
-        render(newNode, state.component?.container, state.component?.node);
+        componentNames.push(state.component?.name || '');
+        const newVNode:VNodeType = state.component?.factory();
+        newVNode.componentName = state.component?.name || '';
+
+        render(newVNode, state.component?.container, state.component?.node);
     }
 
 }
+
+function cloneState(state:any){
+    let newState:any = state;
+    /* Check if state is object or array */
+    if(isObjectOrArray(state)){
+        newState = cloneDeep(state);
+    }
+
+    return newState;
+}
+
+function isObjectOrArray(value:any){
+    const type = typeof value;
+    return type === 'function' || type === 'object' || Array.isArray(value) && !!value;
+}
+
+

@@ -1,9 +1,9 @@
 {
     "presets": [
         "@babel/env",
-        ["@babel/typescript", { "jsxPragma": "reaksi.createElement" }]
+        ["@babel/typescript", { "jsxPragma": "Reaksi.createElement" }]
     ],
     "plugins": [
-        ["@babel/transform-react-jsx", { "pragma": "reaksi.createElement"}]
+        ["@babel/transform-react-jsx", { "pragma": "Reaksi.createElement"}]
     ]
 }

@@ -1,3 +1,6 @@
+import Reaksi from "../index";
+import {Constants} from "../types";
+
 let contexts: ContextType[] = [];
 let contextId = 0;
 
@@ -11,7 +14,7 @@ function provider(id, props){
     const context = contexts.find(c => c.id == id);
     if(context) context.value = props.value;
     return {
-        type:'div',
+        type: Constants.Fragment,
         children: props.children,
         props:props
     };

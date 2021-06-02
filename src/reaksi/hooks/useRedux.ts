@@ -1,5 +1,6 @@
 import useState, {getCurrentComponent} from "./useState";
 import {componentHookIds} from "../shared";
+import {Constants} from "../types";
 
 let store:any = {};
 
@@ -27,27 +28,11 @@ export function useSelector(callback){
     return result;
 }
 
-// function getSelectorId(){
-//     const currentComponent = getCurrentComponent();
-//     if(!currentComponent) return 0;
-//
-//     const componentHook = componentHookIds.get().find(c => c.componentName === currentComponent?.name);
-//
-//     if(componentHook){
-//         componentHook.lastSelectorId ++;
-//         return componentHook.lastSelectorId;
-//     }else{
-//         const {name} = currentComponent;
-//         componentHookIds.add({componentName:name || '', lastStateId: 0, lastEffectId: 0, lastSelectorId: 1});
-//         return 1;
-//     }
-// }
-
 export function Provider(props){
     store = props.store || {};
     const {children} = props;
     return {
-        type:'div',
+        type: Constants.Fragment,
         children: children,
         props:{children}
     };

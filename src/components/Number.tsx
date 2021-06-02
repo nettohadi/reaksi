@@ -1,4 +1,4 @@
-import reaksi, {useSelector, useDispatch, useState, useEffect} from "../reaksi";
+import Reaksi, {useSelector, useDispatch, useState, useEffect} from "../reaksi";
 
 const Number = ({name, key}) => {
     // const data = useSelector((state) => state.numberReducer);

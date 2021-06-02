@@ -1,3 +1,8 @@
+/* Constants */
+export const Constants = {
+  Fragment: 'FRAGMENT'
+};
+
 export type VNodeType = {
     type:string | any,
     children: VNodeType[],
@@ -29,18 +34,18 @@ export const componentHooks:Map<Node, ComponentHookType> = new Map();
 
 // componentHooks.set(null, {factory, hooks: {state: [{value:1, set:(newState) => {}}]}});
 
-type TheEffectType = {
+export type TheEffectType = {
     id: number,
     deps: any[]|null,
     componentName:string
 }
 
-type ComponentEffectType = {
+export type ComponentEffectType = {
     effect:Function,
     componentName:string
 }
 
-type ComponentType = {
+export type ComponentType = {
     id: number,
     factory: Function,
     node?:Node,
@@ -48,28 +53,33 @@ type ComponentType = {
     name?:string
 }
 
-type state = {
+export type state = {
     id: number,
     value: any,
     set: Function,
     component: ComponentType | null
 }
 
-type StateType = {
+export type StateType = {
     value:any,
     set:SetStateType
 }
 
-type SetStateType = (newState:any) => {}
+export type SetStateType = (newState:any) => {}
 
-type EffectType = {
+export type EffectType = {
     oldDeps:any[]
 }
 
-type RefType = {
+export type RefType = {
     current:any
 }
 
-type SelectorType = {
+export type SelectorType = {
     value:any
+}
+
+export type RouterRegExpType = {
+    value: RegExp,
+    pattern: RegExp
 }

@@ -1,4 +1,4 @@
-import {VNodeType} from "./types";
+import {VNodeType, Constants} from "./types";
 import {
     addUnMountedComponent,
     resetComponentId,
@@ -7,6 +7,8 @@ import {
     setCurrentNode, updateNodeRefInStates
 } from "./hooks/useState";
 import {resetEffectId, runAllPendingEffect} from "./hooks/useEffect";
+import Reaksi from "./index";
+import {camelCaseToKebabCase, isObject} from "./helpers";
 
 export function render(vnode: VNodeType, container: HTMLElement | null | undefined, oldDom?: Node | any | null) {
 
@@ -30,13 +32,21 @@ function diff(vNode: VNodeType, oldNode, container, childIndex: number | null = 
     /* check if it's functional component */
     vNode = isFunctionalComponent(vNode, container, childIndex);
 
+    if(vNode.type === Constants.Fragment) {
+        vNode.children.forEach((child, index) => {
+            diff(child, oldNode, container, index);
+        })
+
+        return;
+    }
+
+
     /* get old vNode */
     const oldVNode: VNodeType = oldNode && oldNode._vNode;
     if (!oldVNode) {
         mountElement(vNode, container);
         return;
     }
-
 
     checkForUnMountedComponent(vNode.children, oldVNode.children);
 
@@ -45,7 +55,6 @@ function diff(vNode: VNodeType, oldNode, container, childIndex: number | null = 
 
         newNode = updateNode(newNode, vNode, null);
         updateNodeRefInStates(vNode.componentName || '', newNode);
-
         container.replaceChild(newNode, oldNode);
 
 
@@ -80,7 +89,6 @@ function diff(vNode: VNodeType, oldNode, container, childIndex: number | null = 
             if(child.type === 'boolean'){
 
                 /* Unmount if it's a component*/
-                /* TODO : Make test for this case*/
                 if(oldChildNodes[index]._vNode.componentName) {
                     addUnMountedComponent([oldChildNodes[index]._vNode.componentName])
                 }
@@ -92,13 +100,6 @@ function diff(vNode: VNodeType, oldNode, container, childIndex: number | null = 
 
 }
 
-function getComponentNames(vNodes: VNodeType[]) {
-    let names: string[] = [];
-    vNodes.forEach((node, index) => {
-        if (typeof node.type == "function") names.push(node.type.name + (node.props.key ? '_' + node.props.key : ''));
-    });
-    return names;
-}
 
 /**
  check if some components do not exist in the new vNode tree
@@ -107,9 +108,29 @@ function getComponentNames(vNodes: VNodeType[]) {
 function checkForUnMountedComponent(newVNodes: VNodeType[], oldVNodes: VNodeType[]) {
     const oldChildrenComponentNames = getComponentNames(oldVNodes);
     const newChildrenComponentNames = getComponentNames(newVNodes);
+
     const unMountedComponents = oldChildrenComponentNames.filter(c => !newChildrenComponentNames.includes(c));
 
     if (unMountedComponents.length) addUnMountedComponent(unMountedComponents);
+}
+
+function getComponentNames(vNodes: VNodeType[]) {
+    let componentNames:string[] = [];
+    let names: string[] = [];
+
+    vNodes.forEach((node, index) => {
+        if (typeof node.type == "function") {
+            let name = node.type.name;
+            if(componentNames.includes(node.type.name)){
+                name += (node.props.key ? '_' + node.props.key : '_' + index);
+            }else{
+                componentNames.push(name);
+            }
+
+            names.push(name);
+        }
+    });
+    return names;
 }
 
 function updateNode(node, vNode:VNodeType, oldVNode) {
@@ -137,10 +158,10 @@ function mountElement(vnode: VNodeType, container, childIndex: number | null = n
     vnode = isFunctionalComponent(vnode, container, childIndex);
 
     /* mount to container */
-    const newNode = mountNode(vnode, container);
+    const newNode = vnode.type === Constants.Fragment  ? container : mountNode(vnode, container);
 
     /* associate current node with the component */
-    if (vnode.componentName) {
+    if (vnode.componentName && vnode.type !== Constants.Fragment) {
         setCurrentNode(newNode, vnode.componentName);
     }
 
@@ -172,11 +193,16 @@ function isFunctionalComponent(vnode: VNodeType, container: HTMLElement, childIn
 }
 
 function createNode(vNode: VNodeType) {
-    let newNode;
+    let newNode:Node;
     if (vNode.type === "text") {
         newNode = document.createTextNode(vNode.props.textContent);
     } else {
         newNode = document.createElement(vNode.type);
+    }
+
+    /*expose dom reference via ref prop if exist*/
+    if(vNode.props.hasOwnProperty('ref') && vNode.props.ref.hasOwnProperty('current')) {
+        vNode.props.ref.current = newNode;
     }
 
     return newNode;
@@ -236,6 +262,9 @@ function setAttributeAndListeners(node: HTMLElement, vNode: VNodeType): Node {
 }
 
 function doSetAttrAndListeners(node: HTMLElement, propName: string, newProp: any, oldProp: any) {
+    /* To make sure below condition matched when propName is written in  upper & lower case*/
+    propName = propName.toLowerCase();
+
     if (propName.slice(0, 2) === "on") {
         // prop is an event handler
         const eventName = propName.toLowerCase().slice(2);
@@ -254,12 +283,33 @@ function doSetAttrAndListeners(node: HTMLElement, propName: string, newProp: any
         // ignore the 'children' prop
         if (propName === "className") {
             node.setAttribute("class", newProp);
+        } else if(propName === "style" && isObject(newProp)){
+            node.setAttribute(propName, objectToCSS(newProp));
         } else {
             node.setAttribute(propName, newProp);
         }
     }
 
 }
+
+function objectToCSS(objectCSS:Object):string{
+    let stringCSS = '';
+
+    for(const property in objectCSS){
+        stringCSS += `${camelCaseToKebabCase(property)} : ${appendPixelIfTypeIsNumber(objectCSS[property])} ;`;
+    }
+
+    return stringCSS;
+}
+
+function appendPixelIfTypeIsNumber(value){
+    if(typeof value === 'number'){
+        return `${value}px`;
+    }
+    return value;
+}
+
+
 
 function updateTextNode(node, vNode, oldVNode) {
     if (!oldVNode) return node;

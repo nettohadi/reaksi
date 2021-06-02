@@ -1,4 +1,4 @@
-import reaksi, {useEffect, useState} from "../reaksi";
+import Reaksi, {useEffect, useState} from "../reaksi";
 import TodoItem from "./TodoItem";
 import store from "../redux/store";
 import {Provider} from "../reaksi/hooks/useRedux";
