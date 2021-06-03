@@ -1,6 +1,6 @@
 import {VNodeType, Constants} from "./types";
 import {
-    addUnMountedComponent,
+    addUnMountedComponent, getCurrentComponent,
     resetComponentId,
     resetComponentNames,
     setCurrentComponent,
@@ -153,7 +153,7 @@ function updateNode(node, vNode:VNodeType, oldVNode) {
 /* @param vdom = virtual dom to render */
 
 /* @param container = HTML Element where the dom will be mounted */
-function mountElement(vnode: VNodeType, container, childIndex: number | null = null) {
+function mountElement(vnode: VNodeType, container: HTMLElement | Node, childIndex: number | null = null) {
     /* check if it's functional component */
     vnode = isFunctionalComponent(vnode, container, childIndex);
 
@@ -161,7 +161,7 @@ function mountElement(vnode: VNodeType, container, childIndex: number | null = n
     const newNode = vnode.type === Constants.Fragment  ? container : mountNode(vnode, container);
 
     /* associate current node with the component */
-    if (vnode.componentName && vnode.type !== Constants.Fragment) {
+    if (vnode.componentName) {
         setCurrentNode(newNode, vnode.componentName);
     }
 
@@ -171,19 +171,32 @@ function mountElement(vnode: VNodeType, container, childIndex: number | null = n
     });
 }
 
-function isFunctionalComponent(vnode: VNodeType, container: HTMLElement, childIndex: number | null = null) {
+function isFunctionalComponent(vnode: VNodeType, container: HTMLElement | Node, childIndex: number | null = null) {
     if (vnode && typeof vnode.type == 'function') {
         const factory: Function = vnode.type;
         const functionName = vnode.type.name;
         const {props} = vnode;
 
         /** track current component to be used by hooks */
-        const componentName = setCurrentComponent(() => factory(props), container, functionName, props, childIndex);
+        const componentName = setCurrentComponent(factory, (container as HTMLElement | undefined), functionName, props, childIndex);
 
         vnode = factory(vnode.props);
 
         /* Check again recursively */
         if (vnode && typeof vnode.type == 'function') vnode = isFunctionalComponent(vnode, container);
+
+        // if(vnode.type === Constants.Fragment){
+        //
+        //     const component = updateStateComponent(componentName)?.component;
+        //     if(component) component.container = container.parentElement as HTMLElement | undefined;
+        //     // if(parentComponent && state) {
+        //     //     state.component = parentComponent;
+        //     //     console.log('update component state',{state})
+        //     //
+        //     // }
+        //     // setCurrentComponent(factory, newContainer, functionName, props, childIndex);
+        // }
+
 
         /* associate vnode with the component*/
         vnode.componentName = componentName;
@@ -292,11 +305,16 @@ function doSetAttrAndListeners(node: HTMLElement, propName: string, newProp: any
 
 }
 
+/**
+ * This function will transform object to string.
+ * Every property  written in camelCase will be converted to kebab-case.
+ * If type of property value is number, it will be converted to string and 'px' is appended to the end.
+ * ex: {lineHeight: 20} ------> 'line-height : 20px;'
+ */
 function objectToCSS(objectCSS:Object):string{
     let stringCSS = '';
-
     for(const property in objectCSS){
-        stringCSS += `${camelCaseToKebabCase(property)} : ${appendPixelIfTypeIsNumber(objectCSS[property])} ;`;
+        stringCSS += `${camelCaseToKebabCase(property)}:${appendPixelIfTypeIsNumber(objectCSS[property])};`;
     }
 
     return stringCSS;

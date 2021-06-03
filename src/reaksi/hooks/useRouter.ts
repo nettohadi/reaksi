@@ -1,30 +1,50 @@
 import Reaksi, {createContext, useContext, useState} from "../index";
-import {Constants, RouterRegExpType} from "../types";
+import {Constants, RouterRegExpType, VNodeType} from "../types";
 
 const RouterContext = createContext(null);
 
 
-let changePath = (path:string) => {};
-
+let changePath:(path:string) => {};
+let pathFromRouter;
 export function Router(props) {
     const [path, setPath] = useState(window.location.pathname + window.location.search);
+    pathFromRouter = path;
     changePath = setPath;
-    props.value = path;
-    return RouterContext.Provider(props);
+    // props.value = path;
+
+    const children = props.children;
+
+    const filteredChildren:VNodeType[] = [];
+    children.forEach(child => {
+        if(typeof child.type === 'function' && child.type.name === 'Route'){
+            const invokedChild = child.type(child.props);
+            if(invokedChild.type !== 'EMPTY'){
+                filteredChildren.push(invokedChild);
+            }
+        }
+    });
+
+    const newProps = {...props, children:filteredChildren};
+
+    return {
+        type: Constants.Fragment,
+        children: newProps.children,
+        props:newProps
+    };
 }
 
 let params = {};
 export function Route(props) {
-    const path = useContext(RouterContext);
+    const path = pathFromRouter;
     const exact = props.exact || false;
     const regExp = createRegExp(props.path ||  '', exact);
 
     const isMatched = regExp.value.exec(path);
-    params = extractParams(path, props.path, exact);
+    params = {...params, ...extractParams(path, props.path, exact)};
 
     return {
-        type: Constants.Fragment,
-        children: props.path && isMatched ? props.children : [],
+        type: isMatched ? Constants.Fragment : 'EMPTY',
+        children: props.children,
         props: {}
     };
 
@@ -33,7 +53,7 @@ export function Route(props) {
 export function useRouter(){
     return {
         push: (path:string) => {
-            window.location.pathname = path;
+            window.history.pushState({},'',path);
             changePath(path);
         }
     }

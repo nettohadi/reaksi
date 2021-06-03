@@ -1,9 +1,9 @@
 import {render} from "../render";
 import {componentHookIds} from "../shared";
-import {componentHooks, ComponentType, state, VNodeType} from "../types";
+import {componentHooks, ComponentType, Constants, State, StateType, VNodeType} from "../types";
 import {cloneDeep} from 'lodash';
 
-let states: state[] = [];
+let states: State[] = [];
 
 let __TEST__ = false;
 
@@ -60,7 +60,7 @@ export function setCurrentComponent(factory,
 
     const useContextProvider = 'Provider';
 
-    if (componentAlreadyExist && !props.key && name !== useContextProvider && name !== 'Fragment') {
+    if (componentAlreadyExist && !props.key && name !== useContextProvider && name !== 'Fragment' && name !== 'Route') {
         if (!__TEST__) {
             console.warn(`You need to specify a key for "${name}" 
                          if you want to use it more than once`);
@@ -74,7 +74,7 @@ export function setCurrentComponent(factory,
 
     componentNames.push(name);
 
-    currentComponent = {factory, id: currentComponentId, container, name};
+    currentComponent = {factory, id: currentComponentId, container, name, props};
     return name;
 }
 
@@ -85,6 +85,10 @@ function isComponentAlreadyExist(name: string) {
 export function getCurrentComponent() {
     return currentComponent;
 }
+
+// export function updateStateComponent(componentName:string){
+//     return states.find(s => s.component?.name === componentName);
+// }
 
 export function setCurrentNode(node, currentComponentName) {
     const state = states.find(state => state.component?.name == currentComponentName);
@@ -109,10 +113,11 @@ function createOrGetState(initialState = null) {
     const state = states.find((item) => item.id === stateId && item.component?.name === currentComponent?.name);
 
     if (state) {
+        if(state.component) state.component.props = currentComponent?.props;
         return [state.value, state.set];
     } else {
         const {name: componentName} = currentComponent || {name: ''};
-        const newState: state =
+        const newState: State =
             {
                 id: stateId,
                 value: initialState,
@@ -127,14 +132,10 @@ function createOrGetState(initialState = null) {
     }
 }
 
-// function _createOrGetState(initialState: any | null = null) {
-//     const stateId = componentHookIds.getIdByKey('STATE') || 1;
-//     // const state = componentHooks.get();
-// }
-
 
 function setState(newStateOrCallback, id, componentName: string) {
     const state = states.find((item) => item.id == id && item.component?.name === componentName);
+    // console.log('calling setState', {state, id, componentName});
 
     if(typeof state == 'undefined') return;
 
@@ -153,12 +154,34 @@ function setState(newStateOrCallback, id, componentName: string) {
         componentHookIds.reset();
 
         componentNames.push(state.component?.name || '');
-        const newVNode:VNodeType = state.component?.factory();
+
+        /* invoke component*/
+        let newVNode:VNodeType = state.component?.factory(state.component?.props);
+
+        newVNode = handleFragment(newVNode, state);
+
         newVNode.componentName = state.component?.name || '';
 
         render(newVNode, state.component?.container, state.component?.node);
     }
 
+}
+
+function handleFragment(vNode:VNodeType, state:State){
+    let oldVNode = (state.component?.node as any)?._vNode;
+
+    if((vNode.type === Constants.Fragment || vNode.type.name === Constants.Fragment) && oldVNode) {
+        const oldChildren = [...oldVNode.children];
+        oldChildren?.forEach((item, index) => {
+            if(item.type.name === state.component?.name || item.componentName === state.component?.name){
+                oldChildren[index] = {...vNode, componentName:state.component?.name};
+            }
+        })
+        oldVNode.children = oldChildren;
+        vNode = oldVNode;
+    }
+
+    return vNode;
 }
 
 function cloneState(state:any){

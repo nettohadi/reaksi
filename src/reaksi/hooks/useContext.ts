@@ -14,7 +14,7 @@ function provider(id, props){
     const context = contexts.find(c => c.id == id);
     if(context) context.value = props.value;
     return {
-        type: Constants.Fragment,
+        type: 'div',
         children: props.children,
         props:props
     };

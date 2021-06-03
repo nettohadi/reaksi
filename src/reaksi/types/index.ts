@@ -1,6 +1,6 @@
 /* Constants */
 export const Constants = {
-  Fragment: 'FRAGMENT'
+  Fragment: 'Fragment'
 };
 
 export type VNodeType = {
@@ -48,12 +48,13 @@ export type ComponentEffectType = {
 export type ComponentType = {
     id: number,
     factory: Function,
+    props: any,
     node?:Node,
     container?:HTMLElement,
     name?:string
 }
 
-export type state = {
+export type State = {
     id: number,
     value: any,
     set: Function,
