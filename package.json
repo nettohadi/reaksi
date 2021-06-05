@@ -1,5 +1,5 @@
 {
-  "name": "reaksi",
+  "name": "Reaksi",
   "version": "1.0.0",
   "description": "An attempt to create react like library",
   "main": "index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "reaksi"
+    "url": "https://github.com/nettohadi/reaksi.git"
   },
   "keywords": [
     "React",

@@ -161,7 +161,6 @@ function setState(newStateOrCallback, id, componentName: string) {
         newVNode = handleFragment(newVNode, state);
 
         newVNode.componentName = state.component?.name || '';
-
         render(newVNode, state.component?.container, state.component?.node);
     }
 
@@ -169,6 +168,11 @@ function setState(newStateOrCallback, id, componentName: string) {
 
 function handleFragment(vNode:VNodeType, state:State){
     let oldVNode = (state.component?.node as any)?._vNode;
+
+    if(!oldVNode){
+        // console.log({component:state.component});
+        // console.log('No old vnode', {node:state.component?.node,oldVNode});
+    }
 
     if((vNode.type === Constants.Fragment || vNode.type.name === Constants.Fragment) && oldVNode) {
         const oldChildren = [...oldVNode.children];
@@ -197,6 +201,10 @@ function cloneState(state:any){
 function isObjectOrArray(value:any){
     const type = typeof value;
     return type === 'function' || type === 'object' || Array.isArray(value) && !!value;
+}
+
+export function updateStateComponent(componentName:string) : ComponentType | undefined | null{
+    return states.find(s => s.component?.name === componentName)?.component;
 }
 
 

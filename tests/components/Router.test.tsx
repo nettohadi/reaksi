@@ -52,6 +52,7 @@ describe('Router & Route component', () => {
     it('rerender the Router component when new path is pushed', async () => {
         window.location.pathname = '/home'
         const container = document.createElement('p');
+
         const Home = () => {
             return (<div>Home</div>);
         }
@@ -71,6 +72,7 @@ describe('Router & Route component', () => {
                     <Route path="/about">
                         <About/>
                     </Route>
+                    <div>Hei</div>
                 </Router>
             );
         }
@@ -79,12 +81,12 @@ describe('Router & Route component', () => {
         Reaksi.render(<App/>, container);
 
         /* Assert */
-        let expected = `<div>Home</div>`;
+        let expected = `<div>Home</div><div>Hei</div>`;
         expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
 
         await pushPath('/about');
 
-        expected = `<div>About</div>`;
+        expected = `<div>About</div><div>Hei</div>`;
         expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
 
     });
@@ -190,8 +192,8 @@ describe('Router & Route component', () => {
 
     });
 
-    it(`rerender the Router component when new path is pushed 
-        (check if state is correctly assiciated)`, async () => {
+    it(`rerender the Router component when new path is pushed (check if state is correctly assiciated)`,
+        async () => {
         window.location.pathname = '/home'
         const container = document.createElement('p');
         let homeSetState;

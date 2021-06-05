@@ -1,8 +1,9 @@
 import 'regenerator-runtime/runtime'
-import Reaksi, {render} from "../../src/reaksi";
+import Reaksi from "../../src/reaksi";
 import {fireEvent} from "@testing-library/dom";
 import useState, {resetStates} from "../../src/reaksi/hooks/useState";
 import {resetEffects, useEffect} from "../../src/reaksi/hooks/useEffect";
+import {removeAllWhiteSpaces} from "../helpers";
 
 describe('useEffect()', () => {
 
@@ -136,8 +137,8 @@ describe('useEffect()', () => {
 
     });
 
-    it(`should run unmounting effect  when associated component is unmounted 
-        (same component is used more than once).`, () => {
+    it(`should run unmounting effect  when associated component is unmounted (same component is used more than once).`,
+        () => {
         /* Setup */
         const unMountingEffect = jest.fn().mockImplementation(() => '');
 
@@ -192,6 +193,40 @@ describe('useEffect()', () => {
 
         /* Assert */
         expect(unMountedEffect).toBeCalledTimes(1);
+
+    });
+
+    it('should  run unmounted effect when a component is unmounted (being replaced by other component)',
+        async () => {
+        const container = document.createElement('p');
+        let homeComponentIsUnmounted = false;
+
+        const Home = () => {
+            Reaksi.useEffect(() => {
+                return () => {
+                    homeComponentIsUnmounted = true;
+                }
+            }, []);
+
+            return (<div>Home</div>);
+        }
+        const About = () => {
+            return (<div>About</div>);
+        }
+
+        let pushPath;
+
+        /* Invoke */
+        Reaksi.render(<Reaksi.Fragment><Home/></Reaksi.Fragment>, container);
+
+        /* Assert */
+        let expected = `<div>Home</div>`;
+        expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
+
+        Reaksi.render(<Reaksi.Fragment><About/></Reaksi.Fragment>, container);
+        expected = `<div>About</div>`;
+        expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
+        expect(homeComponentIsUnmounted).toBe(true);
 
     });
 

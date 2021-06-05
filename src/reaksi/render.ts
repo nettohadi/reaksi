@@ -4,7 +4,7 @@ import {
     resetComponentId,
     resetComponentNames,
     setCurrentComponent,
-    setCurrentNode, updateNodeRefInStates
+    setCurrentNode, updateNodeRefInStates, updateStateComponent
 } from "./hooks/useState";
 import {resetEffectId, runAllPendingEffect} from "./hooks/useEffect";
 import Reaksi from "./index";
@@ -21,6 +21,7 @@ export function render(vnode: VNodeType, container: HTMLElement | null | undefin
         mountElement(vnode, container);
     } else {
         /* subsequent render */
+        const next = (oldDom as HTMLElement).nextSibling;
         diff(vnode, oldDom, container)
     }
 
@@ -28,18 +29,9 @@ export function render(vnode: VNodeType, container: HTMLElement | null | undefin
     cleanUpAfterRender();
 }
 
-function diff(vNode: VNodeType, oldNode, container, childIndex: number | null = null) {
+function diff(vNode: VNodeType, oldNode, container : HTMLElement, childIndex: number | null = null) {
     /* check if it's functional component */
     vNode = isFunctionalComponent(vNode, container, childIndex);
-
-    if(vNode.type === Constants.Fragment) {
-        vNode.children.forEach((child, index) => {
-            diff(child, oldNode, container, index);
-        })
-
-        return;
-    }
-
 
     /* get old vNode */
     const oldVNode: VNodeType = oldNode && oldNode._vNode;
@@ -50,20 +42,36 @@ function diff(vNode: VNodeType, oldNode, container, childIndex: number | null = 
 
     checkForUnMountedComponent(vNode.children, oldVNode.children);
 
-    if (vNode.type !== oldVNode.type || (vNode.componentName && vNode.componentName !== oldVNode.componentName)) {
+    if(vNode.type === Constants.Fragment) {
+        let currentNode:Node = oldNode;
+        vNode.children.forEach((child, index) => {
+            if(index > 0) {
+                currentNode = (oldNode?.nextSibling as HTMLElement) || oldNode.replacedBy?.nextSibling;
+            }
+            diff(child, currentNode, container, index);
+        })
+        return;
+    }
+    else if (vNode.type !== oldVNode.type || (vNode.componentName && vNode.componentName !== oldVNode.componentName)) {
         let newNode: Node = createNode(vNode);
 
         newNode = updateNode(newNode, vNode, null);
         updateNodeRefInStates(vNode.componentName || '', newNode);
-        container.replaceChild(newNode, oldNode);
 
+        container.replaceChild(newNode, oldNode);
+        /* Keep reference to node which replace the oldNode */
+        oldNode.replacedBy = newNode;
+
+        /* if it's a component being replaced, push component name to unmounted list */
+        if(oldVNode.componentName) {
+            addUnMountedComponent([oldVNode.componentName]);
+        }
 
         /* Do it recursively for children */
         vNode.children.forEach((item, index) => {
             mountElement(item, newNode, index);
         });
     } else {
-
         oldNode = updateNode(oldNode, vNode, oldVNode);
 
         /* Do it recursively for children */
@@ -106,11 +114,15 @@ function diff(vNode: VNodeType, oldNode, container, childIndex: number | null = 
  if it does not exist, it should be unmounted
 */
 function checkForUnMountedComponent(newVNodes: VNodeType[], oldVNodes: VNodeType[]) {
+    /**
+     * We need to check this way to know which component is being unmounted
+     * when new vNode tree has less children then old vNode tree
+     */
+
     const oldChildrenComponentNames = getComponentNames(oldVNodes);
     const newChildrenComponentNames = getComponentNames(newVNodes);
 
     const unMountedComponents = oldChildrenComponentNames.filter(c => !newChildrenComponentNames.includes(c));
-
     if (unMountedComponents.length) addUnMountedComponent(unMountedComponents);
 }
 
@@ -184,19 +196,6 @@ function isFunctionalComponent(vnode: VNodeType, container: HTMLElement | Node, 
 
         /* Check again recursively */
         if (vnode && typeof vnode.type == 'function') vnode = isFunctionalComponent(vnode, container);
-
-        // if(vnode.type === Constants.Fragment){
-        //
-        //     const component = updateStateComponent(componentName)?.component;
-        //     if(component) component.container = container.parentElement as HTMLElement | undefined;
-        //     // if(parentComponent && state) {
-        //     //     state.component = parentComponent;
-        //     //     console.log('update component state',{state})
-        //     //
-        //     // }
-        //     // setCurrentComponent(factory, newContainer, functionName, props, childIndex);
-        // }
-
 
         /* associate vnode with the component*/
         vnode.componentName = componentName;
@@ -326,8 +325,6 @@ function appendPixelIfTypeIsNumber(value){
     }
     return value;
 }
-
-
 
 function updateTextNode(node, vNode, oldVNode) {
     if (!oldVNode) return node;

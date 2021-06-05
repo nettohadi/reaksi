@@ -18,9 +18,16 @@ export function Router(props) {
     children.forEach(child => {
         if(typeof child.type === 'function' && child.type.name === 'Route'){
             const invokedChild = child.type(child.props);
+            /* Check for nested Route (Route inside Route)*/
+            if(typeof invokedChild.type === 'function' && invokedChild.type.name === 'Route'){
+                throw new Error('Route can not be nested inside Route');
+            }
+
             if(invokedChild.type !== 'EMPTY'){
                 filteredChildren.push(invokedChild);
             }
+        }else{
+            filteredChildren.push(child);
         }
     });
 
@@ -29,7 +36,7 @@ export function Router(props) {
     return {
         type: Constants.Fragment,
         children: newProps.children,
-        props:newProps
+        props: newProps
     };
 }
 

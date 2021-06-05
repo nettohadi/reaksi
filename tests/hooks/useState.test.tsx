@@ -180,7 +180,8 @@ describe('useState()', () => {
         });
 
         it(`should associate the state with the correct component when one ore more of the components
-        with the same name are unmounted (caused by falsy condition).`, async () => {
+        with the same name are unmounted (caused by falsy condition).`,
+            async () => {
             /* Setup */
             const container = document.createElement('div');
             const componentButtons: { click: Function }[] = [];
