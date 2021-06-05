@@ -250,6 +250,30 @@ describe('Router & Route component', () => {
         expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
 
     });
+
+    it('should throw error when route component is nested inside another route', () => {
+        /* Setup */
+        const container = document.createElement('div');
+        const App = () => {
+            return (
+                <Router>
+                    <Route>
+                        <Route>
+                            <Route>
+                                <div>Home</div>
+                            </Route>
+                        </Route>
+                    </Route>
+                </Router>
+            );
+        }
+
+        /* Invoke */
+        const render = () => Reaksi.render(<App/>, container);
+        expect(render).toThrowError('Route can not be nested inside Route');
+
+        /* Assert */
+    });
 });
 
 

@@ -18,11 +18,6 @@ export function Router(props) {
     children.forEach(child => {
         if(typeof child.type === 'function' && child.type.name === 'Route'){
             const invokedChild = child.type(child.props);
-            /* Check for nested Route (Route inside Route)*/
-            if(typeof invokedChild.type === 'function' && invokedChild.type.name === 'Route'){
-                throw new Error('Route can not be nested inside Route');
-            }
-
             if(invokedChild.type !== 'EMPTY'){
                 filteredChildren.push(invokedChild);
             }
@@ -49,12 +44,23 @@ export function Route(props) {
     const isMatched = regExp.value.exec(path);
     params = {...params, ...extractParams(path, props.path, exact)};
 
+    checkForNestedRoute(props.children);
+
     return {
         type: isMatched ? Constants.Fragment : 'EMPTY',
         children: props.children,
         props: {}
     };
 
+}
+
+function checkForNestedRoute(children:VNodeType[]){
+    children.forEach(child => {
+        /* Check for nested Route (Route inside Route)*/
+        if(typeof child.type === 'function' && child.type.name === 'Route'){
+            throw new Error('Route can not be nested inside Route');
+        }
+    });
 }
 
 export function useRouter(){
