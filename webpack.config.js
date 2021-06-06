@@ -6,9 +6,12 @@ module.exports = {
     output : {
         path: path.resolve(__dirname, 'dist'),
         filename: 'reaksi.js',
-        publicPath: "/dist/",
+        library: 'Reaksi',
+        libraryTarget: 'umd',
+        globalObject: 'this',
+        umdNamedDefine: true
     },
-    mode: "development",
+    mode: 'development',
     module: {
         rules: [
             {

@@ -2,7 +2,10 @@
   "name": "Reaksi",
   "version": "1.0.0",
   "description": "An attempt to create react like library",
-  "main": "index.js",
+  "main": "./dist/reaksi.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "webpack serve --open",
     "build": "webpack --mode production",
