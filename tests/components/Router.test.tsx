@@ -174,6 +174,9 @@ describe('Router & Route component', () => {
                             <About/>
                         </Route>
                     </Router>
+                    <div>
+                        <h2>heading</h2>
+                    </div>
                 </div>
             );
         }
@@ -182,17 +185,17 @@ describe('Router & Route component', () => {
         Reaksi.render(<App/>, container);
 
         /* Assert */
-        let expected = `<div><p>Title</p><div>Home</div></div>`;
+        let expected = `<div><p>Title</p><div>Home</div><div><h2>heading</h2></div></div>`;
         expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
 
         await pushPath('/about');
 
-        expected = `<div><p>Title</p><div>About</div></div>`;
+        expected = `<div><p>Title</p><div>About</div><div><h2>heading</h2></div></div>`;
         expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
 
     });
 
-    it(`rerender the Router component when new path is pushed (check if state is correctly assiciated)`,
+    it(`rerender the Router component when new path is pushed (check if state is correctly associated)`,
         async () => {
         window.location.pathname = '/home'
         const container = document.createElement('p');
