@@ -1,8 +1,8 @@
 import 'regenerator-runtime/runtime'
-import Reaksi, {Router, useState} from '../../src/reaksi';
-import {Route, useParam} from "../../src/reaksi/hooks/useRouter";
+import Reaksi, {Router, useState} from '../../src';
+import {Route, useParam} from "../../src/hooks/useRouter";
 import {removeAllWhiteSpaces} from "../helpers";
-import {resetStates} from "../../src/reaksi/hooks/useState";
+import {resetStates} from "../../src/hooks/useState";
 
 describe('Router & Route component', () => {
 

@@ -1,11 +1,11 @@
-import Reaksi from "../src/reaksi";
+import Reaksi from "../src";
 import {removeAllWhiteSpaces} from "./helpers";
 import {fireEvent} from "@testing-library/dom";
 
 
 /* Mock event handler*/
 import handler from "./handlers";
-import {resetStates} from "../src/reaksi/hooks/useState";
+import {resetStates} from "../src/hooks/useState";
 
 jest.mock("./handlers", () => {
     return jest.fn().mockImplementation(() => '');

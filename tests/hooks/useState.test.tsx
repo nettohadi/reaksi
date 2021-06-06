@@ -1,8 +1,8 @@
 import 'regenerator-runtime/runtime'
-import Reaksi from "../../src/reaksi";
+import Reaksi from "../../src";
 import {removeAllWhiteSpaces} from "./../helpers";
 import {fireEvent} from "@testing-library/dom";
-import useState, {resetStates} from "../../src/reaksi/hooks/useState";
+import useState, {resetStates} from "../../src/hooks/useState";
 
 describe('useState()', () => {
 

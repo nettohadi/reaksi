@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime'
-import Reaksi, {useRef} from "../../src/reaksi";
-import {resetStates, setCurrentComponentToNull} from "../../src/reaksi/hooks/useState";
-import {resetRefs} from "../../src/reaksi/hooks/useRef";
+import Reaksi, {useRef} from "../../src";
+import {resetStates, setCurrentComponentToNull} from "../../src/hooks/useState";
+import {resetRefs} from "../../src/hooks/useRef";
 
 describe('useRef', () => {
     beforeEach(() => resetRefs());

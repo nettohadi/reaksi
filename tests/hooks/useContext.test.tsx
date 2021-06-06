@@ -1,5 +1,5 @@
 import 'regenerator-runtime/runtime'
-import Reaksi from "../../src/reaksi";
+import Reaksi from "../../src";
 
 describe('useContext()', () => {
     it(`should be able to pass data / value to deeply nested component 

@@ -1,9 +1,9 @@
 import 'regenerator-runtime/runtime'
-import Reaksi, {ReduxProvider as Provider, useDispatch} from "../../src/reaksi";
+import Reaksi, {ReduxProvider as Provider, useDispatch} from "../../src";
 import {fireEvent} from "@testing-library/dom";
-import {resetStates} from "../../src/reaksi/hooks/useState";
+import {resetStates} from "../../src/hooks/useState";
 import {storeMock as store, resetReduxMock} from "../helpers/reduxMock";
-import {resetSelectors} from "../../src/reaksi/hooks/useRedux";
+import {resetSelectors} from "../../src/hooks/useRedux";
 
 
 describe(`useRedux hooks`, () => {

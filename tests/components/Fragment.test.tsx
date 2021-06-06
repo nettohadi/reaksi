@@ -1,4 +1,4 @@
-import Reaksi from "../../src/reaksi";
+import Reaksi from "../../src";
 import {removeAllWhiteSpaces} from "../helpers";
 
 describe('<Reaksi.Fragment/>', () => {
