@@ -1,6 +1,6 @@
 import useState, {getCurrentComponent} from "./useState";
 import {componentHookIds} from "../shared";
-import {Constants} from "../types";
+import {Constants} from "../helpers";
 
 let store:any = {};
 

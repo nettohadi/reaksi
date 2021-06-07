@@ -1,4 +1,5 @@
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
     context: __dirname,
@@ -6,9 +7,10 @@ module.exports = {
     output : {
         path: path.resolve(__dirname, 'dist'),
         filename: 'reaksi.js',
-        library: 'Reaksi',
-        libraryTarget: 'umd',
-        globalObject: 'this',
+        library: {
+            name: 'Reaksi',
+            type: 'umd'
+        },
         umdNamedDefine: true
     },
     mode: 'development',
@@ -25,5 +27,18 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts','.tsx','.js']
+    },
+    optimization: {
+        minimize: false,
+        // minimizer: [
+        //     new TerserPlugin({
+        //         terserOptions: {
+        //             keep_classnames: true,
+        //             keep_fnames: true
+        //         },
+        //         extractComments:true
+        //     })
+        // ]
+
     }
 };

@@ -1,4 +1,5 @@
-import {VNodeType, Constants} from "./types";
+import type {VNodeType} from "./types";
+import {Constants} from "./helpers";
 import {
     addUnMountedComponent, getCurrentComponent,
     resetComponentId,
@@ -10,6 +11,12 @@ import {resetEffectId, runAllPendingEffect} from "./hooks/useEffect";
 import Reaksi from "./index";
 import {camelCaseToKebabCase, isObject} from "./helpers";
 
+/**
+ * render virtual node to the dom
+ * @param vnode virtual node
+ * @param container dom node container
+ * @param oldDom old dom node container
+ */
 export function render(vnode: VNodeType, container: HTMLElement | null | undefined, oldDom?: Node | any | null) {
 
     /* if vnode or container are null, just bail */

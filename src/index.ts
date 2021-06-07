@@ -5,13 +5,16 @@ import useState from "./hooks/useState";
 import {useContext, createContext} from "./hooks/useContext";
 import {useSelector, useDispatch, Provider} from "./hooks/useRedux";
 import {useRef} from "./hooks/useRef";
-import {Router, useRouter} from "./hooks/useRouter";
-import {Constants} from "./types";
+import {Router, useRouter, Route} from "./hooks/useRouter";
 import {Fragment} from "./components/Fragment";
+import type {ReaksiType} from "./types";
 
 const ReduxProvider = Provider;
-
-const Reaksi = {
+/**
+* {Object} Reaksi - Base Adder object
+* {function} Reaksi.render - A function render on the Reaksi
+*/
+const Reaksi:ReaksiType = {
     render,
     createElement,
     useState,
@@ -23,6 +26,7 @@ const Reaksi = {
     ReduxProvider,
     useRef,
     Router,
+    Route,
     useRouter,
     Fragment
 }
@@ -39,6 +43,7 @@ export {
     ReduxProvider,
     useRef,
     Router,
+    Route,
     useRouter,
     render
 }

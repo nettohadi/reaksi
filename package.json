@@ -1,14 +1,15 @@
 {
-  "name": "Reaksi",
-  "version": "1.0.0",
+  "name": "reaksi",
+  "version": "1.0.21",
   "description": "An attempt to create react like library",
   "main": "./dist/reaksi.js",
   "files": [
     "dist"
   ],
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "webpack serve --open",
-    "build": "webpack --mode production",
+    "build": "webpack",
     "test": "jest"
   },
   "repository": {
@@ -36,6 +37,7 @@
     "jest": "^26.6.3",
     "regenerator-runtime": "^0.13.7",
     "source-map-loader": "^2.0.1",
+    "terser-webpack-plugin": "^5.1.3",
     "ts-loader": "^9.1.2",
     "typescript": "^4.2.4",
     "webpack": "^5.36.2",

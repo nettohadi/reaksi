@@ -1,5 +1,6 @@
 import Reaksi, {createContext, useContext, useState} from "../index";
-import {Constants, RouterRegExpType, VNodeType} from "../types";
+import type {RouterRegExpType, VNodeType} from "../types";
+import {Constants} from "../helpers";
 
 const RouterContext = createContext(null);
 
@@ -18,7 +19,7 @@ export function Router(props) {
     children.forEach(child => {
         if(typeof child.type === 'function' && child.type.name === 'Route'){
             const invokedChild = child.type(child.props);
-            if(invokedChild.type !== 'EMPTY'){
+            if(invokedChild.type !== 'empty'){
                 filteredChildren.push(invokedChild);
             }
         }else{
@@ -47,7 +48,7 @@ export function Route(props) {
     checkForNestedRoute(props.children);
 
     return {
-        type: isMatched ? Constants.Fragment : 'EMPTY',
+        type: isMatched ? Constants.Fragment : 'empty',
         children: props.children,
         props: {}
     };

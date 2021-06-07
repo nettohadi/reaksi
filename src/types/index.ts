@@ -1,7 +1,21 @@
 /* Constants */
-export const Constants = {
-  Fragment: 'Fragment'
-};
+
+export type ReaksiType = {
+    render(vNode: VNodeType, container: HTMLElement | null | undefined, oldDom?: Node | any | null),
+    createElement(type: string, attributes: any, children:VNodeType[]): VNodeType,
+    useState:Function,
+    useEffect:Function,
+    useContext:Function,
+    createContext:Function,
+    useSelector:Function,
+    useDispatch:Function,
+    ReduxProvider:Function,
+    useRef:Function,
+    Router:Function,
+    Route:Function,
+    useRouter:Function,
+    Fragment: Function
+}
 
 export type VNodeType = {
     type:string | any,

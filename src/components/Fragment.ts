@@ -1,4 +1,4 @@
-import {Constants} from "../types";
+import {Constants} from "../helpers";
 
 export function Fragment(props){
     return {

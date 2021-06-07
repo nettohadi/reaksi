@@ -1,6 +1,7 @@
 import {render} from "../render";
 import {componentHookIds} from "../shared";
-import {componentHooks, ComponentType, Constants, State, StateType, VNodeType} from "../types";
+import type {componentHooks, ComponentType, State, StateType, VNodeType} from "../types";
+import {Constants} from "../helpers";
 import {cloneDeep} from 'lodash';
 
 let states: State[] = [];
