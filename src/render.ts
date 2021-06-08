@@ -1,11 +1,11 @@
-import type {VNodeType} from "./types";
+import type {JSXElement, VNodeType} from "./types";
 import {Constants} from "./helpers";
 import {
-    addUnMountedComponent, getCurrentComponent,
+    addUnMountedComponent,
     resetComponentId,
     resetComponentNames,
     setCurrentComponent,
-    setCurrentNode, updateNodeRefInStates, updateStateComponent
+    setCurrentNode, updateNodeRefInStates
 } from "./hooks/useState";
 import {resetEffectId, runAllPendingEffect} from "./hooks/useEffect";
 import Reaksi from "./index";
@@ -13,30 +13,43 @@ import {camelCaseToKebabCase, isObject} from "./helpers";
 
 /**
  * render virtual node to the dom
- * @param vnode virtual node
+ * @param vNode virtual node
  * @param container dom node container
  * @param oldDom old dom node container
  */
-export function render(vnode: VNodeType, container: HTMLElement | null | undefined, oldDom?: Node | any | null) {
+export function render(vNode: JSXElement, container: HTMLElement | null | undefined) {
 
     /* if vnode or container are null, just bail */
-    if (!vnode || !container) return
+    if (!vNode || !container) return
 
-    oldDom = oldDom || container.firstChild;
-    if (!oldDom) {
+    const oldNode =  container.firstChild;
+    if (!oldNode) {
         /* first render */
-        mountElement(vnode, container);
+        mountElement(vNode, container);
     } else {
         /* subsequent render */
-        const next = (oldDom as HTMLElement).nextSibling;
-        diff(vnode, oldDom, container)
+        diff(vNode, container, oldNode);
     }
 
     runAllPendingEffect();
     cleanUpAfterRender();
 }
 
-function diff(vNode: VNodeType, oldNode, container : HTMLElement, childIndex: number | null = null) {
+export function reconcile(vNode: VNodeType | any, container: HTMLElement|null|undefined, oldNode?: Node|any|null){
+    /* if vnode or container are null, just bail */
+    if (!vNode || !container) return
+
+    /* Make sure the old node is not empty*/
+    oldNode = oldNode || container.firstChild;
+
+    diff(vNode, container, oldNode)
+
+    runAllPendingEffect();
+    cleanUpAfterRender();
+
+}
+
+export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIndex: number | null = null) {
     /* check if it's functional component */
     vNode = isFunctionalComponent(vNode, container, childIndex);
 
@@ -55,7 +68,7 @@ function diff(vNode: VNodeType, oldNode, container : HTMLElement, childIndex: nu
             if(index > 0) {
                 currentNode = (oldNode?.nextSibling as HTMLElement) || oldNode.replacedBy?.nextSibling;
             }
-            diff(child, currentNode, container, index);
+            diff(child, container, currentNode, index);
         })
         return;
     }
@@ -84,7 +97,7 @@ function diff(vNode: VNodeType, oldNode, container : HTMLElement, childIndex: nu
         /* Do it recursively for children */
         vNode.children.forEach((childVNode, index) => {
             if(childVNode.type !== 'boolean'){
-                diff(childVNode, oldNode.childNodes[index], oldNode, index);
+                diff(childVNode, oldNode, oldNode.childNodes[index], index);
             }
         });
 

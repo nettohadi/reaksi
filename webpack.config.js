@@ -29,16 +29,16 @@ module.exports = {
         extensions: ['.ts','.tsx','.js']
     },
     optimization: {
-        minimize: false,
-        // minimizer: [
-        //     new TerserPlugin({
-        //         terserOptions: {
-        //             keep_classnames: true,
-        //             keep_fnames: true
-        //         },
-        //         extractComments:true
-        //     })
-        // ]
+        minimize: true,
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    keep_classnames: true,
+                    keep_fnames: true
+                },
+                extractComments:false
+            })
+        ]
 
     }
 };

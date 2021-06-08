@@ -1,16 +1,17 @@
 {
   "name": "reaksi",
-  "version": "1.0.21",
+  "version": "1.0.27",
   "description": "An attempt to create react like library",
   "main": "./dist/reaksi.js",
   "files": [
     "dist"
   ],
-  "types": "./dist/index.d.ts",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
     "dev": "webpack serve --open",
-    "build": "webpack",
-    "test": "jest"
+    "build": "webpack --mode=production",
+    "test": "jest --verbose --rootDir=tests ./tests",
+    "tsc" : "tsc --declaration --emitDeclarationOnly"
   },
   "repository": {
     "type": "git",

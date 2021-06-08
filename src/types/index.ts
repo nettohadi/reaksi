@@ -24,6 +24,8 @@ export type VNodeType = {
     componentName?: string
 }
 
+export type JSXElement = VNodeType | any;
+
 export type ComponentHookIdType = {
     componentName:string,
     hookLastId?:any,

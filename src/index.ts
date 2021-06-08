@@ -7,14 +7,11 @@ import {useSelector, useDispatch, Provider} from "./hooks/useRedux";
 import {useRef} from "./hooks/useRef";
 import {Router, useRouter, Route} from "./hooks/useRouter";
 import {Fragment} from "./components/Fragment";
-import type {ReaksiType} from "./types";
+export * from './types';
 
 const ReduxProvider = Provider;
-/**
-* {Object} Reaksi - Base Adder object
-* {function} Reaksi.render - A function render on the Reaksi
-*/
-const Reaksi:ReaksiType = {
+
+const Reaksi = {
     render,
     createElement,
     useState,

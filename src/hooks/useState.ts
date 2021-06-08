@@ -1,8 +1,7 @@
-import {render} from "../render";
+import {reconcile, render} from "../render";
 import {componentHookIds} from "../shared";
 import type {componentHooks, ComponentType, State, StateType, VNodeType} from "../types";
 import {Constants} from "../helpers";
-import {cloneDeep} from 'lodash';
 
 let states: State[] = [];
 
@@ -87,10 +86,6 @@ export function getCurrentComponent() {
     return currentComponent;
 }
 
-// export function updateStateComponent(componentName:string){
-//     return states.find(s => s.component?.name === componentName);
-// }
-
 export function setCurrentNode(node, currentComponentName) {
     const state = states.find(state => state.component?.name == currentComponentName);
 
@@ -162,18 +157,13 @@ function setState(newStateOrCallback, id, componentName: string) {
         newVNode = handleFragment(newVNode, state);
 
         newVNode.componentName = state.component?.name || '';
-        render(newVNode, state.component?.container, state.component?.node);
+        reconcile(newVNode, state.component?.container, state.component?.node);
     }
 
 }
 
 function handleFragment(vNode:VNodeType, state:State){
     let oldVNode = (state.component?.node as any)?._vNode;
-
-    if(!oldVNode){
-        // console.log({component:state.component});
-        // console.log('No old vnode', {node:state.component?.node,oldVNode});
-    }
 
     if((vNode.type === Constants.Fragment || vNode.type.name === Constants.Fragment) && oldVNode) {
         const oldChildren = [...oldVNode.children];
@@ -187,25 +177,6 @@ function handleFragment(vNode:VNodeType, state:State){
     }
 
     return vNode;
-}
-
-function cloneState(state:any){
-    let newState:any = state;
-    /* Check if state is object or array */
-    if(isObjectOrArray(state)){
-        newState = cloneDeep(state);
-    }
-
-    return newState;
-}
-
-function isObjectOrArray(value:any){
-    const type = typeof value;
-    return type === 'function' || type === 'object' || Array.isArray(value) && !!value;
-}
-
-export function updateStateComponent(componentName:string) : ComponentType | undefined | null{
-    return states.find(s => s.component?.name === componentName)?.component;
 }
 
 

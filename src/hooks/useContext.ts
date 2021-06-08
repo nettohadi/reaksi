@@ -1,5 +1,5 @@
 import Reaksi from "../index";
-import {Constants} from "../types";
+import {Constants} from "../helpers";
 
 let contexts: ContextType[] = [];
 let contextId = 0;
