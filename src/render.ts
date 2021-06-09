@@ -17,7 +17,7 @@ import {camelCaseToKebabCase, isObject} from "./helpers";
  * @param container dom node container
  * @param oldDom old dom node container
  */
-export function render(vNode: JSXElement, container: HTMLElement | null | undefined) {
+export function render(vNode: JSXElement, container: HTMLElement) {
 
     /* if vnode or container are null, just bail */
     if (!vNode || !container) return
@@ -35,7 +35,7 @@ export function render(vNode: JSXElement, container: HTMLElement | null | undefi
     cleanUpAfterRender();
 }
 
-export function reconcile(vNode: VNodeType | any, container: HTMLElement|null|undefined, oldNode?: Node|any|null){
+export function reconcile(vNode: VNodeType | any, container: HTMLElement, oldNode?: Node | null){
     /* if vnode or container are null, just bail */
     if (!vNode || !container) return
 
@@ -60,7 +60,6 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
         return;
     }
 
-    checkForUnMountedComponent(vNode.children, oldVNode.children);
 
     if(vNode.type === Constants.Fragment) {
         let currentNode:Node = oldNode;
@@ -84,7 +83,7 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
 
         /* if it's a component being replaced, push component name to unmounted list */
         if(oldVNode.componentName) {
-            addUnMountedComponent([oldVNode.componentName]);
+            addUnMountedComponent([oldVNode.componentName], 'replaced by');
         }
 
         /* Do it recursively for children */
@@ -104,6 +103,8 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
 
     }
 
+    checkForUnMountedComponent(vNode.children, oldVNode.children);
+
     /* Remove unused old childNodes (unused means the old childNode does not exist in new vNode tree ) */
     let oldChildNodes = oldNode.childNodes;
     if (oldChildNodes.length > vNode.children.length) {
@@ -118,7 +119,7 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
 
                 /* Unmount if it's a component*/
                 if(oldChildNodes[index]._vNode.componentName) {
-                    addUnMountedComponent([oldChildNodes[index]._vNode.componentName])
+                    // addUnMountedComponent([oldChildNodes[index]._vNode.componentName])
                 }
 
                 oldChildNodes[index].remove();
@@ -143,7 +144,7 @@ function checkForUnMountedComponent(newVNodes: VNodeType[], oldVNodes: VNodeType
     const newChildrenComponentNames = getComponentNames(newVNodes);
 
     const unMountedComponents = oldChildrenComponentNames.filter(c => !newChildrenComponentNames.includes(c));
-    if (unMountedComponents.length) addUnMountedComponent(unMountedComponents);
+    if (unMountedComponents.length) addUnMountedComponent(unMountedComponents, 'check for unmounted');
 }
 
 function getComponentNames(vNodes: VNodeType[]) {

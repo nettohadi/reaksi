@@ -1,6 +1,6 @@
-import {reconcile, render} from "../render";
+import {reconcile} from "../render";
 import {componentHookIds} from "../shared";
-import type {componentHooks, ComponentType, State, StateType, VNodeType} from "../types";
+import type {ComponentType, State, VNodeType} from "../types";
 import {Constants} from "../helpers";
 
 let states: State[] = [];
@@ -19,7 +19,7 @@ let componentNames: string[] = [];
 
 let unMountedComponents: string[] = [];
 
-export function addUnMountedComponent(names: string[]) {
+export function addUnMountedComponent(names: string[], source:string='') {
     if (names.length) unMountedComponents = unMountedComponents.concat(names);
 }
 
@@ -129,11 +129,10 @@ function createOrGetState(initialState = null) {
 }
 
 
-function setState(newStateOrCallback, id, componentName: string) {
+function setState(newStateOrCallback: any | Function, id: number, componentName: string) {
     const state = states.find((item) => item.id == id && item.component?.name === componentName);
-    // console.log('calling setState', {state, id, componentName});
 
-    if(typeof state == 'undefined') return;
+    if(!state) return;
 
     let newState: any = newStateOrCallback;
     if (typeof newStateOrCallback === 'function') {
@@ -157,7 +156,7 @@ function setState(newStateOrCallback, id, componentName: string) {
         newVNode = handleFragment(newVNode, state);
 
         newVNode.componentName = state.component?.name || '';
-        reconcile(newVNode, state.component?.container, state.component?.node);
+        if(state.component?.container) reconcile(newVNode, state.component?.container, state.component?.node);
     }
 
 }

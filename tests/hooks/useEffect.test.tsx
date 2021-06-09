@@ -214,8 +214,6 @@ describe('useEffect()', () => {
             return (<div>About</div>);
         }
 
-        let pushPath;
-
         /* Invoke */
         Reaksi.render(<Reaksi.Fragment><Home/></Reaksi.Fragment>, container);
 
