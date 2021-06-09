@@ -15,7 +15,7 @@ export function resetEffects(){
     effects = [];
 }
 
-export function useEffect(callBack, deps:any[]|null=null){
+export function useEffect(callBack: Function, deps: any[]|null=null){
     const effectId = componentHookIds.getIdByKey('EFFECT') || 1;
     const effect = effects.find(effect => effect.id == effectId &&
                                           effect.componentName == getCurrentComponent()?.name);
