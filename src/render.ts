@@ -18,7 +18,6 @@ import {camelCaseToKebabCase, isObject} from "./helpers";
  * @param oldDom old dom node container
  */
 export function render(vNode: JSXElement, container: HTMLElement) {
-
     /* if vnode or container are null, just bail */
     if (!vNode || !container) return
 

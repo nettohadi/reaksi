@@ -42,6 +42,7 @@ export function resetComponentId() {
 
 export function resetComponentNames() {
     componentNames = [];
+    currentComponent = null;
 }
 
 
@@ -96,6 +97,9 @@ export function setCurrentNode(node, currentComponentName) {
 }
 
 export default function useState(initialSate: any = null) {
+    if(!currentComponent)
+        throw new Error(`Hook can not be called outside function component, inside condition, loop, or nested function`);
+
     return createOrGetState(initialSate);
 }
 
@@ -131,7 +135,6 @@ function createOrGetState(initialState = null) {
 
 function setState(newStateOrCallback: any | Function, id: number, componentName: string) {
     const state = states.find((item) => item.id == id && item.component?.name === componentName);
-
     if(!state) return;
 
     let newState: any = newStateOrCallback;

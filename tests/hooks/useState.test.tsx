@@ -328,5 +328,44 @@ describe('useState()', () => {
             expect(renderCount).toBe(1);
 
         });
+
+        it('should throw error when hook is called inside nested function', () => {
+            /* Setup */
+            const container = document.createElement('div');
+
+            let invokeHook;
+            const App = () => {
+                invokeHook = () => {
+                    useState(0);
+                }
+                return (
+                    <div>test</div>
+                );
+            }
+
+            /* Invoke */
+            Reaksi.render(<App/>, container);
+
+            /* Assert */
+            expect(invokeHook).toThrowError();
+        });
+
+    it('should throw error when hook is called outside function component', () => {
+        /* Setup */
+        const container = document.createElement('div');
+
+        const App = () => {
+            useState(0);
+            return (
+                <div>test</div>
+            );
+        }
+
+        /* Invoke */
+        const render = () => Reaksi.render(App(), container);
+
+        /* Assert */
+        expect(render).toThrowError();
+    });
     }
 );

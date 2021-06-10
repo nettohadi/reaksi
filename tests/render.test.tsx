@@ -5,7 +5,7 @@ import {fireEvent} from "@testing-library/dom";
 
 /* Mock event handler*/
 import handler from "./handlers";
-import {resetStates} from "../src/hooks/useState";
+import useState, {resetStates} from "../src/hooks/useState";
 
 jest.mock("./handlers", () => {
     return jest.fn().mockImplementation(() => '');
@@ -204,4 +204,5 @@ describe('render()', () => {
         expect(div.style.textAlign).toBe('center');
         expect(div.style.lineHeight).toBe('20px');
     });
+
 });
