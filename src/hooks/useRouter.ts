@@ -1,4 +1,4 @@
-import Reaksi, {createContext, useContext, useState} from "../index";
+import Reaksi, {createContext, HistoryType, useContext, useState} from "../index";
 import type {RouterRegExpType, VNodeType} from "../types";
 import {Constants} from "../helpers";
 
@@ -10,8 +10,8 @@ let pathFromRouter;
 export function Router(props) {
     const [path, setPath] = useState(window.location.pathname + window.location.search);
     pathFromRouter = path;
+    history.path = path;
     changePath = setPath;
-    // props.value = path;
 
     const children = props.children;
 
@@ -64,13 +64,17 @@ function checkForNestedRoute(children:VNodeType[]){
     });
 }
 
-export function useRouter(){
-    return {
-        push: (path:string) => {
-            window.history.pushState({},'',path);
-            changePath(path);
-        }
-    }
+const history:HistoryType = {
+    push : (path:string) => {
+        window.history.pushState({},'',path);
+        changePath(path);
+    },
+    path : '',
+    getParam: (param:string) => params[param]
+}
+
+export function useRouter():HistoryType{
+    return history
 }
 
 export function useParam(){

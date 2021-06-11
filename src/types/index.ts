@@ -77,6 +77,12 @@ export type State = {
     component: ComponentType | null
 }
 
+export type HistoryType = {
+    push: (path:string) => void,
+    path: string,
+    getParam: (param:string) => string
+}
+
 export type StateType = {
     value:any,
     set:SetStateType

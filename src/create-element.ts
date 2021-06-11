@@ -1,49 +1,45 @@
 import {VNodeType} from "./types";
 
 export function createElement(type: string, attributes: any = {}, ...children): VNodeType {
-    let filteredChildren = filterOutInValidChildren(children);
+    const normalizedChildren = normalizeChildren(children);
     return {
         type,
-        children: filteredChildren,
-        props: {...attributes, children: filteredChildren}
+        children: normalizedChildren,
+        props: {...attributes, children: normalizedChildren}
     }
 }
 
-function filterOutInValidChildren(children: any[]): any[] {
-    return [].concat(...children).reduce(
-        (filteredChildren: any[], child: any) => {
 
-            //if is not valid, don't do anything
-            if (isNotValidChild(child)) {
-                return filteredChildren
-            }
+function normalizeChildren(children: any[]): any[] {
+    //flatten children array
+    children = [].concat(...children);
 
-            //if it's type of object, just push it to the array
+    return children.reduce(
+        (normalizedChildren: any[], child: any) => {
+
+            //if it's type of object (VNode), just push it to the array
             if (child instanceof Object) {
-                filteredChildren.push(child);
+                normalizedChildren.push(child);
             } else if (typeof child == 'boolean') {
-                filteredChildren.push(
-                    //convert it to element object before pushing to the array
+                //if it is type of boolean
+                normalizedChildren.push(
+                    //convert it to VNode with type boolean
                     createElement("boolean", {
                         textContent: child
                     })
                 );
             } else {
-                filteredChildren.push(
-                    //convert it to element object before pushing to the array
+                //if it is type of text
+                normalizedChildren.push(
+                    //convert it to VNode with type text
                     createElement("text", {
                         textContent: child
                     })
                 );
             }
 
-            return filteredChildren
+            return normalizedChildren
 
         }
         , []);
-}
-
-function isNotValidChild(child: any) {
-    return false;
-    // return typeof child === "boolean";
 }
