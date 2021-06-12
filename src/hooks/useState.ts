@@ -19,7 +19,7 @@ let componentNames: string[] = [];
 
 let unMountedComponents: string[] = [];
 
-export function addUnMountedComponent(names: string[], source:string='') {
+export function trackUnMountedComponent(names: string[]) {
     if (names.length) unMountedComponents = unMountedComponents.concat(names);
 }
 

@@ -1,7 +1,7 @@
 import type {JSXElement, VNodeType} from "./types";
 import {Constants} from "./helpers";
 import {
-    addUnMountedComponent,
+    trackUnMountedComponent,
     resetComponentId,
     resetComponentNames,
     setCurrentComponent,
@@ -82,7 +82,7 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
 
         /* if it's a component being replaced, push component name to unmounted list */
         if(oldVNode.componentName) {
-            addUnMountedComponent([oldVNode.componentName], 'replaced by');
+            trackUnMountedComponent([oldVNode.componentName]);
         }
 
         /* Do it recursively for children */
@@ -136,14 +136,13 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
 function checkForUnMountedComponent(newVNodes: VNodeType[], oldVNodes: VNodeType[]) {
     /**
      * We need to check this way to know which component is being unmounted
-     * when new vNode tree has less children then old vNode tree
      */
 
     const oldChildrenComponentNames = getComponentNames(oldVNodes);
     const newChildrenComponentNames = getComponentNames(newVNodes);
 
     const unMountedComponents = oldChildrenComponentNames.filter(c => !newChildrenComponentNames.includes(c));
-    if (unMountedComponents.length) addUnMountedComponent(unMountedComponents, 'check for unmounted');
+    if (unMountedComponents.length) trackUnMountedComponent(unMountedComponents);
 }
 
 function getComponentNames(vNodes: VNodeType[]) {
