@@ -34,3 +34,15 @@ To build the project for production :
 npm run build
 ```
 
+## Hooks
+
+This is an ongoing process, meaning  some hooks are not yet implemented. Below are the available hooks in Reaksi :
+- useState
+- useEffect
+- useContext
+- useRef
+- useSelector (Redux)
+- useDispatch (Redux)
+- useRouter
+For now, you can refer to React doc to find out how above hooks are used.
+
