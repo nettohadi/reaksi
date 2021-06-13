@@ -2,7 +2,7 @@
 
 ## Description
 
-Reaksi is an attempt to understand how React works under the hood by recreating many of it's features. We make Reaksi API very similar to React API, so an experienced React user will have zero learning curve and will be encouraged to try it out.
+Reaksi is a React like library with the same modern API. This is an attempt to understand how React works under the hood by recreating many of it's features.
 
 ## Installation
 
