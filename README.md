@@ -36,7 +36,7 @@ npm run build
 
 ## Hooks
 
-This is an ongoing process, meaning  some hooks are not yet implemented. Below are the available hooks in Reaksi :
+This is an ongoing process, which means some hooks are not yet implemented. Below are the available hooks in Reaksi :
 - useState
 - useEffect
 - useContext
