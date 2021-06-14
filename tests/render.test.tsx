@@ -205,4 +205,15 @@ describe('render()', () => {
         expect(div.style.lineHeight).toBe('20px');
     });
 
+    it('it should set class attribute when props is set to className', () => {
+        /* Setup */
+        const container = document.createElement('div');
+        const Component = () => <div className="test"></div>;
+
+        /* Invoke */
+        Reaksi.render(<Component/>, container);
+
+        /* Assert */
+        expect(container.innerHTML).toBe('<div class="test"></div>')
+    });
 });

@@ -312,7 +312,7 @@ function doSetAttrAndListeners(node: HTMLElement, propName: string, newProp: any
         node[propName] = newProp;
     } else if (propName !== "children") {
         // ignore the 'children' prop
-        if (propName === "className") {
+        if (propName.toLowerCase() === "classname") {
             node.setAttribute("class", newProp);
         } else if(propName === "style" && isObject(newProp)){
             node.setAttribute(propName, objectToCSS(newProp));
