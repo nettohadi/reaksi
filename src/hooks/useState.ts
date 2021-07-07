@@ -135,6 +135,7 @@ function createOrGetState(initialState = null) {
 
 function setState(newStateOrCallback: any | Function, id: number, componentName: string) {
     const state = states.find((item) => item.id == id && item.component?.name === componentName);
+    // const state = componentHook.get(componentName).hooks['STATE'][id]
     if(!state) return;
 
     let newState: any = newStateOrCallback;

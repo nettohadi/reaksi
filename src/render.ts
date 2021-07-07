@@ -1,15 +1,14 @@
 import type {JSXElement, VNodeType} from "./types";
-import {Constants} from "./helpers";
+import {camelCaseToKebabCase, Constants, isObject} from "./helpers";
 import {
-    trackUnMountedComponent,
     resetComponentId,
     resetComponentNames,
     setCurrentComponent,
-    setCurrentNode, updateNodeRefInStates
+    setCurrentNode,
+    trackUnMountedComponent,
+    updateNodeRefInStates
 } from "./hooks/useState";
 import {resetEffectId, runAllPendingEffect} from "./hooks/useEffect";
-import Reaksi from "./index";
-import {camelCaseToKebabCase, isObject} from "./helpers";
 
 /**
  * render virtual node to the dom
@@ -21,7 +20,7 @@ export function render(vNode: JSXElement, container: HTMLElement) {
     /* if vnode or container are null, just bail */
     if (!vNode || !container) return
 
-    const oldNode =  container.firstChild;
+    const oldNode = container.firstChild;
     if (!oldNode) {
         /* first render */
         mountElement(vNode, container);
@@ -34,7 +33,7 @@ export function render(vNode: JSXElement, container: HTMLElement) {
     cleanUpAfterRender();
 }
 
-export function reconcile(vNode: VNodeType | any, container: HTMLElement, oldNode?: Node | null){
+export function reconcile(vNode: VNodeType | any, container: HTMLElement, oldNode?: Node | null) {
     /* if vnode or container are null, just bail */
     if (!vNode || !container) return
 
@@ -48,7 +47,7 @@ export function reconcile(vNode: VNodeType | any, container: HTMLElement, oldNod
 
 }
 
-export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIndex: number | null = null) {
+export function diff(vNode: VNodeType, container: HTMLElement, oldNode, childIndex: number | null = null) {
     /* check if it's functional component */
     vNode = isFunctionalComponent(vNode, container, childIndex);
 
@@ -60,17 +59,16 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
     }
 
 
-    if(vNode.type === Constants.Fragment) {
-        let currentNode:Node = oldNode;
+    if (vNode.type === Constants.Fragment) {
+        let currentNode: Node = oldNode;
         vNode.children.forEach((child, index) => {
-            if(index > 0) {
+            if (index > 0) {
                 currentNode = (oldNode?.nextSibling as HTMLElement) || oldNode.replacedBy?.nextSibling;
             }
             diff(child, container, currentNode, index);
         })
         return;
-    }
-    else if (vNode.type !== oldVNode.type || (vNode.componentName && vNode.componentName !== oldVNode.componentName)) {
+    } else if (vNode.type !== oldVNode.type || (vNode.componentName && vNode.componentName !== oldVNode.componentName)) {
         let newNode: Node = createNode(vNode);
 
         newNode = updateNode(newNode, vNode, null);
@@ -81,7 +79,7 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
         oldNode.replacedBy = newNode;
 
         /* if it's a component being replaced, push component name to unmounted list */
-        if(oldVNode.componentName) {
+        if (oldVNode.componentName) {
             trackUnMountedComponent([oldVNode.componentName]);
         }
 
@@ -94,7 +92,7 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
 
         /* Do it recursively for children */
         vNode.children.forEach((childVNode, index) => {
-            if(childVNode.type !== 'boolean'){
+            if (childVNode.type !== 'boolean') {
                 diff(childVNode, oldNode, oldNode.childNodes[index], index);
             }
         });
@@ -111,13 +109,12 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
             oldChildNodes[i].remove();
         }
 
-    }
-    else if(oldChildNodes.length === vNode.children.length){
+    } else if (oldChildNodes.length === vNode.children.length) {
         vNode.children.forEach((child, index) => {
-            if(child.type === 'boolean'){
+            if (child.type === 'boolean') {
 
                 /* Unmount if it's a component*/
-                if(oldChildNodes[index]._vNode.componentName) {
+                if (oldChildNodes[index]._vNode.componentName) {
                     // addUnMountedComponent([oldChildNodes[index]._vNode.componentName])
                 }
 
@@ -132,7 +129,7 @@ export function diff(vNode: VNodeType, container : HTMLElement, oldNode, childIn
 /**
  check if some components do not exist in the new vNode tree
  if it does not exist, it should be unmounted
-*/
+ */
 function checkForUnMountedComponent(newVNodes: VNodeType[], oldVNodes: VNodeType[]) {
     /**
      * We need to check this way to know which component is being unmounted
@@ -146,15 +143,15 @@ function checkForUnMountedComponent(newVNodes: VNodeType[], oldVNodes: VNodeType
 }
 
 function getComponentNames(vNodes: VNodeType[]) {
-    let componentNames:string[] = [];
+    let componentNames: string[] = [];
     let names: string[] = [];
 
     vNodes.forEach((node, index) => {
         if (typeof node.type == "function") {
             let name = node.type.name;
-            if(componentNames.includes(node.type.name)){
+            if (componentNames.includes(node.type.name)) {
                 name += (node.props.key ? '_' + node.props.key : '_' + index);
-            }else{
+            } else {
                 componentNames.push(name);
             }
 
@@ -164,7 +161,7 @@ function getComponentNames(vNodes: VNodeType[]) {
     return names;
 }
 
-function updateNode(node, vNode:VNodeType, oldVNode) {
+function updateNode(node, vNode: VNodeType, oldVNode) {
     if (vNode.type == 'text') {
         node = updateTextNode(node, vNode, oldVNode)
     } else {
@@ -189,7 +186,7 @@ function mountElement(vnode: VNodeType, container: HTMLElement | Node, childInde
     vnode = isFunctionalComponent(vnode, container, childIndex);
 
     /* mount to container */
-    const newNode = vnode.type === Constants.Fragment  ? container : mountNode(vnode, container);
+    const newNode = vnode.type === Constants.Fragment ? container : mountNode(vnode, container);
 
     /* associate current node with the component */
     if (vnode.componentName) {
@@ -209,7 +206,8 @@ function isFunctionalComponent(vnode: VNodeType, container: HTMLElement | Node, 
         const {props} = vnode;
 
         /** track current component to be used by hooks */
-        const componentName = setCurrentComponent(factory, (container as HTMLElement | undefined), functionName, props, childIndex);
+        const componentName = setCurrentComponent(factory, (container as HTMLElement | undefined), functionName,
+                                props, childIndex);
 
         vnode = factory(vnode.props);
 
@@ -224,7 +222,7 @@ function isFunctionalComponent(vnode: VNodeType, container: HTMLElement | Node, 
 }
 
 function createNode(vNode: VNodeType) {
-    let newNode:Node;
+    let newNode: Node;
     if (vNode.type === "text") {
         newNode = document.createTextNode(vNode.props.textContent);
     } else {
@@ -232,7 +230,7 @@ function createNode(vNode: VNodeType) {
     }
 
     /*expose dom reference via ref prop if exist*/
-    if(vNode.props.hasOwnProperty('ref') && vNode.props.ref.hasOwnProperty('current')) {
+    if (vNode.props.hasOwnProperty('ref') && vNode.props.ref.hasOwnProperty('current')) {
         vNode.props.ref.current = newNode;
     }
 
@@ -314,7 +312,7 @@ function doSetAttrAndListeners(node: HTMLElement, propName: string, newProp: any
         // ignore the 'children' prop
         if (propName.toLowerCase() === "classname") {
             node.setAttribute("class", newProp);
-        } else if(propName === "style" && isObject(newProp)){
+        } else if (propName === "style" && isObject(newProp)) {
             node.setAttribute(propName, objectToCSS(newProp));
         } else {
             node.setAttribute(propName, newProp);
@@ -329,17 +327,17 @@ function doSetAttrAndListeners(node: HTMLElement, propName: string, newProp: any
  * If type of property value is number, it will be converted to string and 'px' is appended to the end.
  * ex: {lineHeight: 20} ------> 'line-height : 20px;'
  */
-function objectToCSS(objectCSS:Object):string{
+function objectToCSS(objectCSS: Object): string {
     let stringCSS = '';
-    for(const property in objectCSS){
+    for (const property in objectCSS) {
         stringCSS += `${camelCaseToKebabCase(property)}:${appendPixelIfTypeIsNumber(objectCSS[property])};`;
     }
 
     return stringCSS;
 }
 
-function appendPixelIfTypeIsNumber(value){
-    if(typeof value === 'number'){
+function appendPixelIfTypeIsNumber(value) {
+    if (typeof value === 'number') {
         return `${value}px`;
     }
     return value;

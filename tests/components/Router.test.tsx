@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime'
 import Reaksi, {Router, useState} from '../../src';
 import {Route, useParam} from "../../src/hooks/useRouter";
-import {removeAllWhiteSpaces} from "../helpers";
+import {removeAllWhiteSpaces, wait} from "../helpers";
 import {resetStates} from "../../src/hooks/useState";
 
 describe('Router & Route component', () => {
@@ -14,6 +14,8 @@ describe('Router & Route component', () => {
         Object.defineProperty(window, "location", {
             value: new URL(path)
         } );
+
+        window.location.search = '';
     })
 
     it('render component based on url', () => {
@@ -254,7 +256,7 @@ describe('Router & Route component', () => {
 
     });
 
-    it('should throw error when route component is nested inside another route', () => {
+    it('should throw error when Route component is nested inside another Route', () => {
         /* Setup */
         const container = document.createElement('div');
         const App = () => {
@@ -276,6 +278,60 @@ describe('Router & Route component', () => {
         expect(render).toThrowError('Route can not be nested inside Route');
 
         /* Assert */
+    });
+
+    it('should rerender when user go back to previous page using browser back button', async () => {
+        /* Setup */
+        window.location.pathname = '/'
+        const container = document.createElement('div');
+        const Home = () => {
+            return (<div>Home</div>);
+        }
+        const About = () => {
+            return (<div>About</div>);
+        }
+
+        let pushPath;
+        const App = () => {
+            const router = Reaksi.useRouter();
+            pushPath = router.push;
+            return (
+                <div>
+                    <Router>
+                        <Route path="/" exact>
+                            <Home/>
+                        </Route>
+                        <Route path="/about" exact>
+                            <About/>
+                        </Route>
+                    </Router>
+                </div>
+            );
+        }
+
+
+        /* Invoke */
+        Reaksi.render(<App/>, container);
+
+        /* Assert */
+        expect(container.innerHTML).toBe(`<div><div>Home</div></div>`);
+
+        await pushPath('/about');
+
+        /* Assert */
+        wait(() => expect(container.innerHTML).toBe(<div><div>About</div></div>))
+
+        /* Invoke */
+        //Go back in history
+        const popStateEvent = new PopStateEvent('popstate', {
+            bubbles: false, cancelable: false, state: window.history.state
+        });
+        await dispatchEvent(popStateEvent);
+
+        /* Assert */
+        expect(container.innerHTML).toBe(`<div><div>Home</div></div>`);
+
+
     });
 });
 

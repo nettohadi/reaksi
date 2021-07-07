@@ -1,5 +1,14 @@
-import {ComponentHookIdType} from "../types";
+import {
+    ComponentHookIdType,
+    ComponentHookType,
+    EffectType,
+    HookKeyType,
+    RefType,
+    SelectorType,
+    StateType
+} from "../types";
 import {getCurrentComponent} from "../hooks/useState";
+import {componentHook} from "./component";
 
 let _componentHookIds: ComponentHookIdType[] = [];
 
@@ -7,7 +16,7 @@ export const componentHookIds = {
     get: () => {
         return _componentHookIds
     },
-    getIdByKey: function (key: string): number {
+    getIdByKey: function (key: HookKeyType): number {
         const currentComponent = getCurrentComponent();
         if (!currentComponent) return 0;
 
@@ -37,4 +46,12 @@ export const componentHookIds = {
     add: (item: ComponentHookIdType) => {
         _componentHookIds.push(item)
     }
+}
+
+
+
+export function currentHook (hookName:HookKeyType) : StateType | EffectType | SelectorType | RefType | null{
+    const hookId = componentHookIds.getIdByKey(hookName);
+    const c = componentHook.get(getCurrentComponent()?.name || '');
+    return c?.hook[hookName][hookId];
 }

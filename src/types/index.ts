@@ -26,6 +26,8 @@ export type VNodeType = {
 
 export type JSXElement = VNodeType | any;
 
+export type HookKeyType = 'STATE' | 'EFFECT' | 'REF' | 'SELECTOR';
+
 export type ComponentHookIdType = {
     componentName:string,
     hookLastId?:any,
@@ -35,9 +37,12 @@ export type ComponentHookIdType = {
 }
 
 export type ComponentHookType = {
-    factory: Function,
-    parentNode?:HTMLElement,
-    hooks: {
+    name: string,
+    props: any | null,
+    factory: Function | null,
+    parentNode?:HTMLElement | null,
+    node?:HTMLElement | null,
+    hook: {
         states: StateType[],
         effects : EffectType[],
         refs: RefType[],

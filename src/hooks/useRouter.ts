@@ -1,17 +1,43 @@
-import Reaksi, {createContext, HistoryType, useContext, useState} from "../index";
+//TODO:
+//1. Router does not work correctly, if Route component is not a direct child
+//2. Back button on browser does not trigger rerender
+
+//TOD
+
+
+import Reaksi, {HistoryType, useEffect, useState} from "../index";
 import type {RouterRegExpType, VNodeType} from "../types";
 import {Constants} from "../helpers";
 
-const RouterContext = createContext(null);
+const history:HistoryType = {
+    push : (path:string) => {
+        window.history.pushState({},'',path);
+        changePath(path);
+    },
+    path : '',
+    getParam: (param:string) => params[param]
+}
 
 
 let changePath:(path:string) => {};
 let pathFromRouter;
+
+function handleBackButton() {
+    useEffect(() => {
+        window.onpopstate = function () {
+            changePath(window.location.pathname + window.location.search)
+        };
+        return () => window.onpopstate = null;
+    }, []);
+}
+
 export function Router(props) {
     const [path, setPath] = useState(window.location.pathname + window.location.search);
     pathFromRouter = path;
     history.path = path;
     changePath = setPath;
+
+    handleBackButton();
 
     const children = props.children;
 
@@ -43,6 +69,7 @@ export function Route(props) {
     const regExp = createRegExp(props.path ||  '', exact);
 
     const isMatched = regExp.value.exec(path);
+    // console.log({isMatched, path, route: props.path});
     params = {...params, ...extractParams(path, props.path, exact)};
 
     checkForNestedRoute(props.children);
@@ -64,14 +91,7 @@ function checkForNestedRoute(children:VNodeType[]){
     });
 }
 
-const history:HistoryType = {
-    push : (path:string) => {
-        window.history.pushState({},'',path);
-        changePath(path);
-    },
-    path : '',
-    getParam: (param:string) => params[param]
-}
+
 
 export function useRouter():HistoryType{
     return history

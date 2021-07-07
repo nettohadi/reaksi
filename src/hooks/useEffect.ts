@@ -15,18 +15,20 @@ export function resetEffects(){
     effects = [];
 }
 
-export function useEffect(callBack: () => void, deps: any[]|null=null){
-    const effectId = componentHookIds.getIdByKey('EFFECT') || 1;
+export function useEffect(callback: () => void, deps: any[]|null=null){
+    const effectId = componentHookIds.getIdByKey('EFFECT');
+    //const effect = currentHook('EFFECT')
+
     const effect = effects.find(effect => effect.id == effectId &&
                                           effect.componentName == getCurrentComponent()?.name);
 
     if(!effect){
         effects.push({id:effectId, deps, componentName: getCurrentComponent()?.name || ''});
-        pendingEffects.push({effect:callBack, componentName:getCurrentComponent()?.name || ''});
+        pendingEffects.push({effect:callback, componentName:getCurrentComponent()?.name || ''});
     }else {
         if(depsChanged(effect.deps, deps)) {
             effect.deps = deps;
-            pendingEffects.push({effect:callBack, componentName:getCurrentComponent()?.name || ''})
+            pendingEffects.push({effect:callback, componentName:getCurrentComponent()?.name || ''})
         };
     }
 }
