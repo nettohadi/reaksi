@@ -1,9 +1,5 @@
 //TODO:
 //1. Router does not work correctly, if Route component is not a direct child
-//2. Back button on browser does not trigger rerender
-
-//TOD
-
 
 import Reaksi, {HistoryType, useEffect, useState} from "../index";
 import type {RouterRegExpType, VNodeType} from "../types";

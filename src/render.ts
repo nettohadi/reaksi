@@ -48,6 +48,9 @@ export function reconcile(vNode: VNodeType | any, container: HTMLElement, oldNod
 }
 
 export function diff(vNode: VNodeType, container: HTMLElement, oldNode, childIndex: number | null = null) {
+    /* Return early if it's a boolean */
+    if(vNode.type === 'boolean') return;
+
     /* check if it's functional component */
     vNode = isFunctionalComponent(vNode, container, childIndex);
 
@@ -67,6 +70,8 @@ export function diff(vNode: VNodeType, container: HTMLElement, oldNode, childInd
             }
             diff(child, container, currentNode, index);
         })
+        return;
+    } else if (vNode.type === 'boolean') {
         return;
     } else if (vNode.type !== oldVNode.type || (vNode.componentName && vNode.componentName !== oldVNode.componentName)) {
         let newNode: Node = createNode(vNode);
@@ -92,9 +97,7 @@ export function diff(vNode: VNodeType, container: HTMLElement, oldNode, childInd
 
         /* Do it recursively for children */
         vNode.children.forEach((childVNode, index) => {
-            if (childVNode.type !== 'boolean') {
-                diff(childVNode, oldNode, oldNode.childNodes[index], index);
-            }
+            diff(childVNode, oldNode, oldNode.childNodes[index], index);
         });
 
 
@@ -182,6 +185,8 @@ function updateNode(node, vNode: VNodeType, oldVNode) {
 
 /* @param container = HTML Element where the dom will be mounted */
 function mountElement(vnode: VNodeType, container: HTMLElement | Node, childIndex: number | null = null) {
+    if(vnode.type === 'boolean') return;
+
     /* check if it's functional component */
     vnode = isFunctionalComponent(vnode, container, childIndex);
 
@@ -207,7 +212,7 @@ function isFunctionalComponent(vnode: VNodeType, container: HTMLElement | Node, 
 
         /** track current component to be used by hooks */
         const componentName = setCurrentComponent(factory, (container as HTMLElement | undefined), functionName,
-                                props, childIndex);
+            props, childIndex);
 
         vnode = factory(vnode.props);
 

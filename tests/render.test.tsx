@@ -216,4 +216,21 @@ describe('render()', () => {
         /* Assert */
         expect(container.innerHTML).toBe('<div class="test"></div>')
     });
+
+    it('it should not render element with type of boolean as a result of falsy condition', () => {
+        /* Setup */
+        const container = document.createElement('div');
+        const Component = () => (
+            <div>
+                {false}
+                <h1>Test</h1>
+            </div>
+        );
+
+        /* Invoke */
+        Reaksi.render(<Component/>, container);
+
+        /* Assert */
+        expect(container.innerHTML).toBe('<div><h1>Test</h1></div>')
+    });
 });
