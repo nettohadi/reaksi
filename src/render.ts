@@ -33,8 +33,8 @@ export function render(vNode: JSXElement, container: HTMLElement) {
         diff(vNode, container, oldNode);
     }
 
-    runAllPendingEffect();
     cleanUpAfterRender();
+    runAllPendingEffect();
 }
 
 function cleanTheContainer(container: HTMLElement){
@@ -51,8 +51,8 @@ export function reconcile(vNode: VNodeType | any, container: HTMLElement, oldNod
 
     diff(vNode, container, oldNode)
 
-    runAllPendingEffect();
     cleanUpAfterRender();
+    runAllPendingEffect();
 
 }
 
