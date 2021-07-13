@@ -21,7 +21,9 @@ export function render(vNode: JSXElement, container: HTMLElement) {
     if (!vNode || !container) return
 
     const oldNode = container.firstChild;
-    if (!oldNode || isFirstRender()) {
+    const firstRender = isFirstRender();
+
+    if (!oldNode || firstRender) {
         /* Clean up the container */
         cleanTheContainer(container);
         /* first render */
@@ -120,11 +122,11 @@ export function diff(vNode: VNodeType, container: HTMLElement, oldNode, childInd
         }
 
     } else if (oldChildNodes.length === vNode.children.length) {
-        vNode.children.forEach((child, index) => {
-            if (child.type === 'boolean') {
-                oldChildNodes[index]?.remove();
+        for (let i = oldChildNodes.length - 1; i >= 0; i -= 1) {
+            if (vNode.children[i].type === 'boolean') {
+                oldChildNodes[i].remove();
             }
-        })
+        }
     }
 
 }

@@ -6,7 +6,7 @@ import {fireEvent} from "@testing-library/dom";
 /* Mock event handler*/
 import handler from "./handlers";
 import useState, {resetStates} from "../src/hooks/useState";
-import {makeTheFirstRender} from "../src/helpers";
+import {setAsFirstRender} from "../src/helpers";
 
 jest.mock("./handlers", () => {
     return jest.fn().mockImplementation(() => '');
@@ -16,7 +16,7 @@ describe('render()', () => {
 
     beforeEach(() => {
         resetStates();
-        makeTheFirstRender();
+        setAsFirstRender();
     });
 
     it('should render every element to the dom container correctly', () => {
@@ -234,6 +234,55 @@ describe('render()', () => {
 
         /* Assert */
         expect(container.innerHTML).toBe('<div><h1>Test</h1></div>')
+    });
+
+    it('it should remove the element which rendered as falsy after diffing process', () => {
+        /* Setup */
+        const container = document.createElement('div');
+
+        const Component1 = () => {
+            return <div>Component 1</div>
+        }
+
+        const Component2 = () => {
+            return <div>Component 2</div>
+        }
+
+        let condition = true;
+        const App = () => {
+            return (
+                <div>
+                    {condition && <Component1/>}
+                    <h1>app</h1>
+                    {condition && <Component2/>}
+                </div>
+            );
+        }
+
+        /* Invoke */
+        Reaksi.render(<App/>, container);
+
+        /* Assert */
+        let expected = `
+            <div>
+                <div>Component 1</div>
+                <h1>app</h1>
+                <div>Component 2</div>
+            </div>
+        `;
+        expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
+
+        /* Invoke */
+        condition = false;
+        Reaksi.render(<App/>, container);
+
+        /* Assert */
+        expected = `
+            <div>                
+                <h1>app</h1>                
+            </div>
+        `;
+        expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
     });
 
     it('should clean up the container before render', () => {

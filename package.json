@@ -1,6 +1,6 @@
 {
   "name": "reaksi",
-  "version": "1.0.0-alpha.53",
+  "version": "1.0.0-alpha.54",
   "description": "An attempt to create react like library",
   "main": "./dist/reaksi.js",
   "files": [

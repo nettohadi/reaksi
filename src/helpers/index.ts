@@ -18,6 +18,6 @@ export function isFirstRender(){
     return value;
 }
 
-export function makeTheFirstRender() {
+export function setAsFirstRender() {
     firstRender = true;
 }
