@@ -10,3 +10,14 @@ export function camelCaseToKebabCase(word:string){
 export const Constants = {
     Fragment: 'Fragment'
 };
+
+let firstRender = true;
+export function isFirstRender(){
+    const value = firstRender;
+    firstRender = false;
+    return value;
+}
+
+export function makeTheFirstRender() {
+    firstRender = true;
+}

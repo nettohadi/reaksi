@@ -1,5 +1,5 @@
 import type {JSXElement, VNodeType} from "./types";
-import {camelCaseToKebabCase, Constants, isObject} from "./helpers";
+import {camelCaseToKebabCase, Constants, isFirstRender, isObject} from "./helpers";
 import {
     resetComponentId,
     resetComponentNames,
@@ -21,7 +21,9 @@ export function render(vNode: JSXElement, container: HTMLElement) {
     if (!vNode || !container) return
 
     const oldNode = container.firstChild;
-    if (!oldNode) {
+    if (!oldNode || isFirstRender()) {
+        /* Clean up the container */
+        cleanTheContainer(container);
         /* first render */
         mountElement(vNode, container);
     } else {
@@ -31,6 +33,11 @@ export function render(vNode: JSXElement, container: HTMLElement) {
 
     runAllPendingEffect();
     cleanUpAfterRender();
+}
+
+function cleanTheContainer(container: HTMLElement){
+    container.childNodes.forEach(node => node.remove());
+    container.innerHTML = '';
 }
 
 export function reconcile(vNode: VNodeType | any, container: HTMLElement, oldNode?: Node | null) {

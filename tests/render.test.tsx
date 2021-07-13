@@ -6,6 +6,7 @@ import {fireEvent} from "@testing-library/dom";
 /* Mock event handler*/
 import handler from "./handlers";
 import useState, {resetStates} from "../src/hooks/useState";
+import {makeTheFirstRender} from "../src/helpers";
 
 jest.mock("./handlers", () => {
     return jest.fn().mockImplementation(() => '');
@@ -15,6 +16,7 @@ describe('render()', () => {
 
     beforeEach(() => {
         resetStates();
+        makeTheFirstRender();
     });
 
     it('should render every element to the dom container correctly', () => {
@@ -232,5 +234,20 @@ describe('render()', () => {
 
         /* Assert */
         expect(container.innerHTML).toBe('<div><h1>Test</h1></div>')
+    });
+
+    it('should clean up the container before render', () => {
+        /* Setup */
+        const container = document.createElement('div');
+        container.innerHTML = '<div>test</div><h1>test</h1>'
+
+        const Component = () => <h2>test</h2>;
+
+        /* Invoke */
+        Reaksi.render(<Component/>, container);
+
+
+        /* Assert */
+        expect(container.innerHTML).toBe('<h2>test</h2>')
     });
 });
