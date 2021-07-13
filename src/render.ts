@@ -122,7 +122,7 @@ export function diff(vNode: VNodeType, container: HTMLElement, oldNode, childInd
     } else if (oldChildNodes.length === vNode.children.length) {
         vNode.children.forEach((child, index) => {
             if (child.type === 'boolean') {
-                oldChildNodes[index].remove();
+                oldChildNodes[index]?.remove();
             }
         })
     }
