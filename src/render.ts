@@ -112,7 +112,7 @@ export function diff(vNode: VNodeType, container: HTMLElement, oldNode, childInd
 
     checkForUnMountedComponent(vNode.children, oldVNode.children);
 
-    /* Remove unused old childNodes (unused means the old childNode does not exist in new vNode tree ) */
+    /* Remove excess old childNodes  */
     let oldChildNodes = oldNode.childNodes;
     if (oldChildNodes.length > vNode.children.length) {
         for (let i = oldChildNodes.length - 1; i >= vNode.children.length; i -= 1) {
@@ -122,12 +122,6 @@ export function diff(vNode: VNodeType, container: HTMLElement, oldNode, childInd
     } else if (oldChildNodes.length === vNode.children.length) {
         vNode.children.forEach((child, index) => {
             if (child.type === 'boolean') {
-
-                /* Unmount if it's a component*/
-                if (oldChildNodes[index]._vNode.componentName) {
-                    // addUnMountedComponent([oldChildNodes[index]._vNode.componentName])
-                }
-
                 oldChildNodes[index].remove();
             }
         })
