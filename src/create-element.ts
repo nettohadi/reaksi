@@ -9,7 +9,6 @@ export function createElement(type: string, attributes: any = {}, ...children): 
     }
 }
 
-
 function normalizeChildren(children: any[]): any[] {
     //flatten children array
     children = [].concat(...children);

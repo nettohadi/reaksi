@@ -213,7 +213,7 @@ function isFunctionalComponent(vnode: VNodeType, container: HTMLElement | Node, 
         const functionName = vnode.type.name;
         const {props} = vnode;
 
-        /** track current component to be used by hooks */
+        /* track current component to be used by hooks */
         const componentName = setCurrentComponent(factory, (container as HTMLElement | undefined), functionName,
             props, childIndex);
 

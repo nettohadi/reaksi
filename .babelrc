@@ -4,6 +4,6 @@
         ["@babel/typescript", { "jsxPragma": "Reaksi.createElement" }]
     ],
     "plugins": [
-        ["@babel/transform-react-jsx", { "pragma": "Reaksi.createElement"}]
+        ["@babel/transform-react-jsx", { "pragma": "Reaksi.createElement", "pragmaFrag": "Reaksi.Fragment"}]
     ]
 }

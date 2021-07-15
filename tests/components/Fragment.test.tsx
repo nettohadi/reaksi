@@ -69,4 +69,18 @@ describe('<Reaksi.Fragment/>', () => {
 
         expect(container.innerHTML).toBe(removeAllWhiteSpaces(expected));
     });
+
+    it(`it should render as Fragment when '<></> is used'`, () => {
+        /* Setup */
+        const container = document.createElement('div');
+        const Component = () => {
+            return (<><h1>Component</h1></>)
+        };
+
+        /* Invoke */
+        Reaksi.render(<Component/>, container);
+
+        /* Assert */
+        expect(container.innerHTML).toBe('<h1>Component</h1>')
+    });
 });
