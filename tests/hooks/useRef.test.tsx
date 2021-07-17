@@ -17,8 +17,8 @@ describe('useRef', () => {
          const ref1 = (_ref1 = useRef(0));
          const ref2 = (_ref2 = useRef(1));
 
-         ref1.current++;
-         ref2.current++;
+         ref1.current !== null && ref1.current++;
+         ref2.current !== null && ref2.current++;
          return <div></div>;
       };
 

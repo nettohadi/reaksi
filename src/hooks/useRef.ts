@@ -19,7 +19,7 @@ export function resetRefs() {
    refs = [];
 }
 
-export function useRef<T>(value: T | any = null): RefType<T | any> {
+export function useRef<T>(value: T | null = null): RefType<T | null> {
    const refId = componentHookIds.getIdByKey('REF');
    const currentComponentName = getCurrentComponent()?.name;
    const ref = refs.find(

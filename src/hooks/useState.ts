@@ -106,9 +106,7 @@ export function setCurrentNode(node, currentComponentName) {
    }
 }
 
-export default function useState<T>(
-   initialSate: T | null = null
-): UseStateType<T> {
+export default function useState<T>(initialSate: T): UseStateType<T> {
    if (!currentComponent)
       throw new Error(
          `Hook can not be called outside function component, inside condition, loop, or nested function`

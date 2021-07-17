@@ -85,7 +85,7 @@ export type ComponentType = {
 export type State<T> = {
    id: number;
    value: T;
-   set: Function;
+   set: SetterType<T>;
    component: ComponentType | null;
 };
 
@@ -119,5 +119,6 @@ export type RouterRegExpType = {
    pattern: RegExp;
 };
 
-export type SetterType<T> = (state: T) => void;
+export type CallbackStateType<T> = (state: T) => T;
+export type SetterType<T> = (state: T | CallbackStateType<T>) => void;
 export type UseStateType<T> = [value: T, setter: SetterType<T>];
