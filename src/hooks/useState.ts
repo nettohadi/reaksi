@@ -1,6 +1,6 @@
 import { reconcile } from '../render';
 import { componentHookIds } from '../shared';
-import type { ComponentType, State, VNodeType } from '../types';
+import type { ComponentType, State, UseStateType, VNodeType } from '../types';
 import { Constants } from '../helpers';
 
 let states: State<any>[] = [];
@@ -106,17 +106,15 @@ export function setCurrentNode(node, currentComponentName) {
    }
 }
 
-type StateType<T> = [value: T, setter: Function];
-
 export default function useState<T>(
-   initialSate: any | null = null
-): StateType<T | any> {
+   initialSate: T | null = null
+): UseStateType<T> {
    if (!currentComponent)
       throw new Error(
          `Hook can not be called outside function component, inside condition, loop, or nested function`
       );
 
-   return createOrGetState<T>(initialSate) as StateType<T>;
+   return createOrGetState<T>(initialSate) as UseStateType<T>;
 }
 
 export function updateNodeRefInStates(componentName: string, node: Node) {
@@ -124,7 +122,7 @@ export function updateNodeRefInStates(componentName: string, node: Node) {
    if (state && state.component) state.component.node = node;
 }
 
-function createOrGetState<T>(initialState: any | null = null): StateType<T> {
+function createOrGetState<T>(initialState: any | null = null): UseStateType<T> {
    const stateId = componentHookIds.getIdByKey('STATE') || 1;
    const state = states.find(
       (item) =>

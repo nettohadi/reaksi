@@ -118,3 +118,6 @@ export type RouterRegExpType = {
    value: RegExp;
    pattern: RegExp;
 };
+
+export type SetterType<T> = (state: T) => void;
+export type UseStateType<T> = [value: T, setter: SetterType<T>];
