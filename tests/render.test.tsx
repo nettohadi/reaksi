@@ -299,4 +299,22 @@ describe('render()', () => {
         /* Assert */
         expect(container.innerHTML).toBe('<h2>test</h2>')
     });
+
+    it('it should not render "ref" as attribute', () => {
+        /* Setup */
+        const container = document.createElement('div');
+
+        const Component = () => (
+            <div ref={null}>
+                Test
+            </div>
+        );
+
+        /* Invoke */
+        Reaksi.render(<Component/>, container);
+
+        /* Assert */
+        expect(container.innerHTML).toBe('<div>Test</div>')
+
+    });
 });

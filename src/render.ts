@@ -238,7 +238,7 @@ function createNode(vNode: VNodeType) {
     }
 
     /*expose dom reference via ref prop if exist*/
-    if (vNode.props.hasOwnProperty('ref') && vNode.props.ref.hasOwnProperty('current')) {
+    if (vNode.props?.ref?.current) {
         vNode.props.ref.current = newNode;
     }
 
@@ -322,6 +322,8 @@ function doSetAttrAndListeners(node: HTMLElement, propName: string, newProp: any
             node.setAttribute("class", newProp);
         } else if (propName === "style" && isObject(newProp)) {
             node.setAttribute(propName, objectToCSS(newProp));
+        } else if (propName === "ref") {
+            //if prop is ref, don't do anything
         } else {
             node.setAttribute(propName, newProp);
         }
