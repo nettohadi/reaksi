@@ -21,7 +21,7 @@ import { resetEffectId, runAllPendingEffect } from './hooks/useEffect';
  * @param container dom node container
  * @param oldDom old dom node container
  */
-export function render(vNode: JSXElement, container: HTMLElement) {
+export function render(vNode: JSXElement, container: HTMLElement | null) {
    /* if vnode or container are null, just bail */
    if (!vNode || !container) return;
 

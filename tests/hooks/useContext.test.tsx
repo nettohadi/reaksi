@@ -1,5 +1,5 @@
 import 'regenerator-runtime/runtime'
-import Reaksi from "../../src";
+import Reaksi, { createContext } from '../../src';
 
 describe('useContext()', () => {
     it(`should be able to pass data / value to deeply nested component 
@@ -7,7 +7,7 @@ describe('useContext()', () => {
 
         /* Setup */
         const container = document.createElement('div');
-        const MyContext = Reaksi.createContext({test: 1})
+        const MyContext = createContext({test: 1})
 
         const GrandChild1 = () => {
             const state = Reaksi.useContext(MyContext);
