@@ -40,5 +40,5 @@ export function useRef<T>(value: T | null = null): RefType<T | null> {
       return newRef.value;
    }
 
-   return false;
+   return ref.value;
 }
