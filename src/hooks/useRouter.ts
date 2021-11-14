@@ -10,6 +10,7 @@ import Reaksi, {
 } from '../index';
 import type { RouterRegExpType, VNodeType } from '../types';
 import { Constants } from '../helpers';
+import { logDOM } from '@testing-library/dom';
 
 const history: HistoryType = {
    push: (path: string) => {
@@ -59,7 +60,7 @@ export function Router(props) {
    const newProps = { ...props, children: filteredChildren };
 
    return {
-      type: Constants.Fragment,
+      type: 'div',
       children: newProps.children,
       props: newProps,
    };
@@ -78,9 +79,24 @@ export function Route(props) {
    checkForNestedRoute(props.children);
 
    return {
-      type: isMatched ? Constants.Fragment : 'empty',
+      type: isMatched ? 'div' : 'empty',
       children: props.children,
       props: {},
+   };
+}
+
+export function Link(props) {
+   props.href = `${props.to}`;
+   delete props.to;
+   props.onClick = (e) => {
+      e.preventDefault();
+      history.push(props.href);
+   };
+
+   return {
+      type: 'a',
+      children: props.children,
+      props,
    };
 }
 
