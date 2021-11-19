@@ -1,6 +1,6 @@
 <img src="https://hadi-syahbal.com/storage/images/Reaksi_final.png" width="700">
 
-### 💁 More information at the [Reaksi Website ➞](https://reaksi.hadi-syahbal.com/)
+### 📚 More information at the [Reaksi Website ➞](https://reaksi.hadi-syahbal.com/)
 
 ## Description
 
